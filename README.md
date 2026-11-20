@@ -28,6 +28,7 @@ Set `SITE_URL` (see `.env.example`) to the confirmed domain before deploying. It
 
 | What | File |
 | --- | --- |
+| **Today's Menu** — availability, prices, meal deals (update daily) | `src/data/todays-menu.ts` |
 | WhatsApp number, concept mode, socials, delivery partners, nav | `src/config/site.ts` |
 | Branches (address, hours, phone, per-branch WhatsApp, map query) | `src/data/branches.ts` |
 | Menu categories and items (optional `price`) | `src/data/menu.ts` |
@@ -39,7 +40,15 @@ Set `SITE_URL` (see `.env.example`) to the confirmed domain before deploying. It
 
 Append an entry to `branches` in `src/data/branches.ts`. Everything else updates automatically: the homepage cards, the footer, a new `/locations/<slug>` page, the branch picker in the order form, the sitemap and the structured data.
 
+### Updating Today's Menu
+
+Open `src/data/todays-menu.ts`, set `available: true/false` and `price` for each dish, change `updated` to today's date, then rebuild and deploy. The homepage board, the "available only" filter, the order form's prices and estimated total, and the WhatsApp messages all update together.
+
+The current data is a real snapshot of Amoke Oge's Chowdeck store (Ikoyi) taken on 20 Nov 2026. Chowdeck prices can differ from walk-in prices, so management should confirm their counter prices.
+
 ### Activating the WhatsApp number
+
+**Demo setting:** every WhatsApp button currently goes to **+234 814 125 0336**, the website builder's own number, so the demo can be tested end to end. Replace it with Amoke Oge's confirmed number before handover.
 
 Set `site.whatsapp.number` to the confirmed number in international format, digits only (for example `234XXXXXXXXXX`). To route orders for one branch to a different number, set `whatsapp` on that branch. Until a number is set, every WhatsApp button opens WhatsApp with the order message prefilled and lets the customer choose who to send it to, so no button is ever broken.
 
@@ -72,17 +81,19 @@ Set `site.whatsapp.number` to the confirmed number in international format, digi
 - **Menu items:** taken from the Amoke Oge Chowdeck store (Ikoyi) and published visit reviews.
 
 **Needs confirmation from management**
-- **WhatsApp number(s):** none confirmed, so none is published.
+- **WhatsApp number(s):** none confirmed. The demo uses the builder's own number (+234 814 125 0336).
 - **Phone numbers:** listings conflict and none is published. Candidates are noted in the comments of `src/data/branches.ts`.
 - **Street numbers** for Surulere (Babs Animashaun Road) and Onipanu (Oguntolu Street).
 - **Opening hours** for every branch. Listings mostly agree on Tuesday–Sunday with Mondays closed. Chowdeck shows 8am–8pm for Ikoyi.
 - **Glovo store link.**
-- **Prices:** deliberately not shown.
+- **Prices:** shown in Today's Menu from the Chowdeck listing; walk-in prices to be confirmed.
 - **Official logo**, if one exists. The current wordmark is a concept.
 - **Excluded listings:** "Amoke Oge Food Centre" in Mafoluku/Oshodi and "Amoke Ala Amala" in Oregun could not be linked to this brand, so they are left out.
 
 ## Photography
 
 All photographs are **demonstration imagery** of Nigerian dishes from Wikimedia Commons (CC BY-SA, CC BY and CC0). They are **not** Amoke Oge's food or premises. Full credits are at `/photo-credits`. Replace them with Amoke Oge's own photography before launch: swap the files in `src/assets/images/` (menu thumbnails live in `src/assets/images/menu/`), update `src/data/photos.ts`, and set `credit: null` for in-house photos. Then run `python3 scripts/placeholders.py` to regenerate the blurred loading previews (needs Pillow).
+
+**Image budget:** source photos are kept at 1600px or smaller, and every generated image must be 200 KB or less. `npm test` fails if any image is larger.
 
 Every image shows a tiny blurred preview of itself while the full image loads, so no image box is ever empty on slow connections.

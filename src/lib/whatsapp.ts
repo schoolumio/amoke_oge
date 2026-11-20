@@ -23,8 +23,8 @@ export const whatsappUrl = (message: string = site.whatsapp.defaultMessage, bran
   return number ? `https://wa.me/${number}?text=${text}` : `https://wa.me/?text=${text}`;
 };
 
-export const dishMessage = (dish: string, branch?: Branch | null) =>
-  `Hello Amoke Oge, I would like to order ${dish}${branch ? ` from your ${branch.name} branch` : ''}. Please confirm availability and today's price. Thank you.`;
+export const dishMessage = (dish: string, branch?: Branch | null, price?: string) =>
+  `Hello Amoke Oge, I'd like to order ${dish}${price ? ` (${price} on your menu)` : ''}${branch ? ` from your ${branch.name} branch` : ''}. Is it available now? Thank you.`;
 
 export const branchMessage = (branch: Branch) =>
-  `Hello Amoke Oge (${branch.name}), I would like to place an order. Please assist me with your available meals and prices.`;
+  `Hello Amoke Oge (${branch.name}), I'd like to place an order. Please let me know what's available today and the prices.`;

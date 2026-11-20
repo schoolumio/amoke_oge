@@ -12,9 +12,6 @@ const categoryPhoto: Record<string, Photo> = {
   specials: photos.yorubaDelicacies,
   others: photos.dodo,
 };
-const priceAsk = whatsappUrl(
-  "Hello Amoke Oge, please could you share today's menu and prices? Thank you.",
-);
 ---
 <section class="section menu" id="menu" aria-labelledby="menu-title">
   <div class="container">
@@ -24,8 +21,7 @@ const priceAsk = whatsappUrl(
         From the pot, <em class="accent">to your plate</em>
       </h2>
       <p class="lede" data-reveal style="--reveal-delay:160ms">
-        Choose a category, pick your favourites and send your order on WhatsApp. We’ll confirm availability and
-        today’s prices.
+        Everything we cook, by category. Pick your favourites and send your order on WhatsApp.
       </p>
     </div>
 
@@ -65,9 +61,10 @@ const priceAsk = whatsappUrl(
                 <Image
                   src={photo.src}
                   alt={photo.alt}
-                  widths={[400, 640, 900]}
+                  width={900}
+      widths={[400, 640, 900]}
                   sizes="(min-width: 1024px) 34vw, 92vw"
-                  quality={68}
+                  quality={60}
                   style={placeholder(photo)}
                 />
               </figure>
@@ -84,7 +81,8 @@ const priceAsk = whatsappUrl(
                     <Image
                       src={item.photo.src}
                       alt={item.photo.alt}
-                      widths={[96, 168, 224]}
+                      width={224}
+      widths={[96, 168, 224]}
                       sizes="(min-width: 640px) 84px, 68px"
                       quality={65}
                       style={placeholder(item.photo)}
@@ -123,11 +121,10 @@ const priceAsk = whatsappUrl(
     <div class="menu__note" data-reveal>
       <Icon name="info" size={20} />
       <p>
-        Prices change with the market and can differ by branch, so we don’t list them here.
-        Availability varies through the day.
+        This is our full menu. For what’s available right now and today’s prices, check Today’s Menu.
       </p>
-      <a href={priceAsk} class="link-arrow" target="_blank" rel="noopener">
-        Ask for today’s prices <Icon name="arrow-right" size={18} />
+      <a href="#today" class="link-arrow">
+        See today’s menu &amp; prices <Icon name="arrow-right" size={18} />
       </a>
     </div>
   </div>

@@ -31,9 +31,10 @@ import Icon from './Icon.astro';
             <Image
               src={dish.photo.src}
               alt={dish.photo.alt}
-              widths={[360, 520, 720, 900]}
+              width={900}
+      widths={[360, 520, 720, 900]}
               sizes="(min-width: 1024px) 30vw, (min-width: 640px) 46vw, 82vw"
-              quality={70}
+              quality={60}
               style={placeholder(dish.photo)}
             />
             <span class="dish__num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>

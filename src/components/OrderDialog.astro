@@ -10,9 +10,13 @@ import { site } from '../config/site';
 import { branches } from '../data/branches';
 import { menu } from '../data/menu';
 import { normaliseNumber } from '../lib/whatsapp';
+import { todaysMenu } from '../data/todays-menu';
 import Icon from './Icon.astro';
 
+const prices: Record<string, number> = {};
+for (const i of [...todaysMenu.deals, ...todaysMenu.groups.flatMap((g) => g.items)]) if (i.price && i.available) prices[i.name] = i.price;
 const data = {
+  prices,
   defaultNumber: normaliseNumber(site.whatsapp.number),
   defaultMessage: site.whatsapp.defaultMessage,
   branches: branches.map((b) => ({ slug: b.slug, name: b.name, number: normaliseNumber(b.whatsapp) })),
@@ -36,6 +40,7 @@ const data = {
         <fieldset class="field">
           <legend class="field__label">Your meal</legend>
           <ul class="order__items" data-order-items aria-live="polite"></ul>
+          <p class="order__total" data-order-total hidden></p>
           <p class="order__empty" data-order-empty>
             Add dishes below, or just tell us what you would like in the notes.
           </p>
@@ -43,6 +48,11 @@ const data = {
           <div class="select">
             <select id="order-add" data-order-add>
               <option value="">+ Add a dish from the menu</option>
+              <optgroup label="Today’s menu">
+                {[...todaysMenu.deals, ...todaysMenu.groups.flatMap((g) => g.items)].filter((i) => i.available).map((i) => (
+                  <option value={i.name}>{i.name}{i.price ? ` — ₦${i.price.toLocaleString('en-NG')}` : ''}</option>
+                ))}
+              </optgroup>
               {menu.map((cat) => (
                 <optgroup label={cat.title}>
                   {cat.items.map((item) => <option value={item.name}>{item.name}</option>)}
@@ -198,6 +208,8 @@ const data = {
   }
   .order__items { list-style: none; padding: 0; display: grid; gap: 0.5rem; }
   .order__items:empty { display: none; }
+  .order__total { font-weight: 700; color: var(--forest-800); font-size: 0.92rem; padding: 0.2rem 0.1rem; }
+  .order__items :global(.item-name small) { display: block; font-weight: 500; font-size: 0.78rem; color: var(--ink-muted); }
   .order__empty { font-size: 0.9rem; color: var(--ink-muted); }
   .order__items :global(li) {
     display: flex;

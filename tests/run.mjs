@@ -4,7 +4,7 @@
  * Requires Playwright with Chromium (`npx playwright install chromium` if missing).
  */
 import { createServer } from 'node:http';
-import { readFile, stat } from 'node:fs/promises';
+import { readFile, stat, readdir } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { extname, join, resolve } from 'node:path';
 
@@ -46,6 +46,21 @@ const check = (cond, msg) => {
 const section = (t) => console.log(`\n▸ ${t}`);
 
 const browser = await chromium.launch();
+const WHATSAPP = '2348141250336';
+
+// ---------------------------------------------------------------- image budget
+section('Image budget (every image ≤ 200 KB)');
+{
+  const walk = async (dir) => (await Promise.all((await readdir(dir, { withFileTypes: true })).map((d) => d.isDirectory() ? walk(join(dir, d.name)) : [join(dir, d.name)]))).flat();
+  const images = (await walk(DIST)).filter((f) => /\.(jpe?g|png|webp|avif|gif)$/i.test(f));
+  let largest = 0;
+  for (const f of images) {
+    const { size } = await stat(f);
+    largest = Math.max(largest, size);
+    check(size <= 200 * 1024, `${f.replace(DIST, '')} is ${Math.round(size / 1024)} KB`);
+  }
+  console.log(`  ${images.length} images, largest ${Math.round(largest / 1024)} KB`);
+}
 const pages = ['/', '/locations/ikoyi-obalende', '/locations/bawala-pedro', '/locations/surulere', '/locations/onipanu', '/photo-credits', '/404'];
 
 // ---------------------------------------------------------------- static checks
@@ -81,7 +96,7 @@ for (const path of pages) {
       const u = new URL(href);
       const text = u.searchParams.get('text') ?? '';
       check(/Amoke Oge/.test(text), `${path}: WhatsApp link without prefilled message: ${href}`);
-      check(/^\/\d*$/.test(u.pathname), `${path}: malformed WhatsApp number in ${href}`);
+      check(u.pathname === `/${WHATSAPP}`, `${path}: WhatsApp link not pointing at +${WHATSAPP}: ${href}`);
     } else if (href.startsWith('#') || href.startsWith('/')) {
       const [p, hash] = href.split('#');
       const target = p || path;
@@ -130,6 +145,28 @@ for (const width of [320, 360, 390, 768, 1024, 1440]) {
 }
 
 // ---------------------------------------------------------------- interactions
+section("Today's Menu");
+{
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await page.goto(BASE + '/', { waitUntil: 'load' });
+  const order = await page.evaluate(() => [...document.querySelectorAll('main > section')].map((s) => s.id));
+  check(order[0] === 'top' && order[1] === 'today', `Today's Menu is the first section after the hero (${order.slice(0, 3).join(', ')})`);
+  const soldOut = page.locator('#today .is-soldout').first();
+  check(await soldOut.isVisible(), 'sold-out items are shown by default');
+  await page.locator('#today .switch').click();
+  check(!(await soldOut.isVisible()), '"Show available only" hides sold-out items');
+  const prices = await page.locator('#today .board__price').allTextContents();
+  check(prices.some((p) => /₦\d/.test(p)), 'board shows naira prices');
+  await page.locator('#today [data-dish="Amala Combo"]').click();
+  await page.locator('[data-order-dialog]').waitFor({ state: 'visible' });
+  const msg = await page.locator('[data-order-preview]').textContent();
+  check(msg.includes('1 × Amala Combo — ₦2,100') && msg.includes('Estimated total: ₦2,100'), 'deal price and total carried into the WhatsApp message');
+  const href = await page.locator('[data-order-send]').getAttribute('href');
+  check(href.startsWith(`https://wa.me/${WHATSAPP}?text=`), 'order is sent to the configured WhatsApp number');
+  check(decodeURIComponent(href).includes("Hello Amoke Oge, I'd like to order"), 'message opens with the ready-made greeting');
+  await page.close();
+}
+
 section('Order on WhatsApp flow');
 {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
@@ -172,7 +209,7 @@ section('Order on WhatsApp flow');
   await page.waitForTimeout(600);
   check(await page.locator('[data-drawer]').evaluate((d) => d.open), 'mobile drawer opens');
   await page.locator('[data-drawer-link]', { hasText: 'Locations' }).click();
-  await page.waitForTimeout(1200);
+  await page.waitForTimeout(2600); // smooth scroll on a long page
   check(!(await page.locator('[data-drawer]').evaluate((d) => d.open)), 'drawer closes after navigating');
   const locTop = await page.locator('#locations').evaluate((el) => el.getBoundingClientRect().top);
   check(Math.abs(locTop) < 200, `drawer link scrolls to section (top=${Math.round(locTop)})`);

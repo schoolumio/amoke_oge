@@ -1,13 +1,16 @@
 ---
 import { Image, getImage } from 'astro:assets';
 import { gallery } from '../data/dishes';
-import { placeholder } from '../data/photos';
+import { placeholder, dimensions } from '../data/photos';
 import { site } from '../config/site';
 import Icon from './Icon.astro';
 
 const items = await Promise.all(
   gallery.map(async (g) => {
-    const full = await getImage({ src: g.photo.src, width: 1600, format: 'webp', quality: 72 });
+    const { w, h } = dimensions(g.photo);
+    // longest side at most 1400px so portrait photos stay small too
+    const width = Math.round(w >= h ? Math.min(1400, w) : Math.min(1400, h) * (w / h));
+    const full = await getImage({ src: g.photo.src, width, format: 'webp', quality: 56 });
     return { ...g, full: full.src };
   }),
 );
@@ -48,9 +51,10 @@ const instagram = site.socials.find((s) => s.label === 'Instagram');
             <Image
               src={item.photo.src}
               alt={item.photo.alt}
-              widths={[320, 480, 720, 960]}
+              width={960}
+      widths={[320, 480, 720, 960]}
               sizes={item.size === 'large' || item.size === 'wide' ? '(min-width: 900px) 50vw, 100vw' : '(min-width: 900px) 25vw, 50vw'}
-              quality={66}
+              quality={58}
               style={placeholder(item.photo)}
             />
             <span class="gallery__cap">{item.caption}</span>

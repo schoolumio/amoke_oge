@@ -18,7 +18,7 @@ const list = Object.values(photos).filter((p) => p.credit);
       <ul class="credits__list">
         {list.map((p) => (
           <li>
-            <Image src={p.src} alt={p.alt} widths={[80, 160]} sizes="80px" quality={60} class="credits__thumb" style={placeholder(p)} />
+            <Image src={p.src} alt={p.alt} width={160} widths={[80, 160]} sizes="80px" quality={60} class="credits__thumb" style={placeholder(p)} />
             <span class="credits__alt">{p.alt}</span>
             <span class="credits__meta">
               Photo by {p.credit!.author} ·{' '}

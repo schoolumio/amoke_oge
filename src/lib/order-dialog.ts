@@ -2,11 +2,19 @@
  * Client-side behaviour for the WhatsApp order dialog.
  */
 interface OrderData {
+  prices: Record<string, number>;
   defaultNumber: string | null;
   defaultMessage: string;
   branches: { slug: string; name: string; number: string | null }[];
 }
-interface Line { name: string; qty: number }
+interface Line { name: string; qty: number; price?: number }
+
+const naira = (n: number) => `₦${n.toLocaleString('en-NG')}`;
+
+export const estimate = (lines: Line[]) => {
+  const priced = lines.filter((l) => typeof l.price === 'number');
+  return { total: priced.reduce((t, l) => t + l.price! * l.qty, 0), complete: priced.length === lines.length, any: priced.length > 0 };
+};
 
 const STORAGE_KEY = 'amoke-oge-order';
 
@@ -35,10 +43,10 @@ export function buildMessage(opts: {
 }) {
   const parts: string[] = [];
   if (opts.lines.length) {
-    parts.push('Hello Amoke Oge, I would like to place an order.');
-    parts.push('');
-    parts.push('Order:');
-    opts.lines.forEach((l) => parts.push(`• ${l.qty} × ${l.name}`));
+    parts.push("Hello Amoke Oge, I'd like to order:");
+    opts.lines.forEach((l) => parts.push(`• ${l.qty} × ${l.name}${l.price ? ` — ${naira(l.price * l.qty)}` : ''}`));
+    const est = estimate(opts.lines);
+    if (est.any) parts.push(`Estimated total: ${naira(est.total)}${est.complete ? '' : ' + other items'} (pack/delivery extra)`);
   } else {
     parts.push(opts.defaultMessage);
   }
@@ -49,7 +57,7 @@ export function buildMessage(opts: {
   if (opts.name.trim()) parts.push(`Name: ${opts.name.trim()}`);
   if (opts.lines.length) {
     parts.push('');
-    parts.push("Please confirm availability and today's prices. Thank you.");
+    parts.push('Please confirm availability and the total. Thank you.');
   }
   return parts.join('\n');
 }
@@ -66,6 +74,7 @@ export function initOrderDialog() {
   const add = dialog.querySelector<HTMLSelectElement>('[data-order-add]')!;
   const preview = dialog.querySelector<HTMLElement>('[data-order-preview]')!;
   const send = dialog.querySelector<HTMLAnchorElement>('[data-order-send]')!;
+  const totalEl = dialog.querySelector<HTMLElement>('[data-order-total]');
 
   let lines: Line[] = store.load();
   let lastTrigger: HTMLElement | null = null;
@@ -96,6 +105,11 @@ export function initOrderDialog() {
         const name = document.createElement('span');
         name.className = 'item-name';
         name.textContent = line.name;
+        if (line.price) {
+          const small = document.createElement('small');
+          small.textContent = `${naira(line.price)} each`;
+          name.append(small);
+        }
         const qty = document.createElement('span');
         qty.className = 'qty';
         const minus = document.createElement('button');
@@ -121,19 +135,25 @@ export function initOrderDialog() {
       }),
     );
     empty.hidden = lines.length > 0;
+    if (totalEl) {
+      const est = estimate(lines);
+      totalEl.hidden = !est.any;
+      totalEl.textContent = est.any ? `Estimated total ${naira(est.total)}${est.complete ? '' : ' + unpriced items'} · pack & delivery extra` : '';
+    }
     update();
   };
 
-  const addDish = (name: string) => {
+  const addDish = (name: string, price?: number) => {
+    const p = Number.isFinite(price) && price! > 0 ? price : data.prices[name];
     const existing = lines.find((l) => l.name === name);
     if (existing) existing.qty += 1;
-    else lines.push({ name, qty: 1 });
+    else lines.push(p ? { name, qty: 1, price: p } : { name, qty: 1 });
   };
 
   const open = (trigger: HTMLElement) => {
     lastTrigger = trigger;
     const dish = trigger.dataset.dish;
-    if (dish && !lines.some((l) => l.name === dish)) addDish(dish);
+    if (dish && !lines.some((l) => l.name === dish)) addDish(dish, Number(trigger.dataset.price));
     const branch = trigger.dataset.branch;
     if (branch) {
       const radio = form.querySelector<HTMLInputElement>(`input[name="branch"][value="${CSS.escape(branch)}"]`);

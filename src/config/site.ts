@@ -37,9 +37,11 @@ export const site = {
      * the order message prefilled and lets the customer choose the contact.
      * Branch-specific numbers can be set in `src/data/branches.ts`.
      */
-    number: null as string | null,
+    // DEMO: points at the website builder's own number until Amoke Oge
+    // confirms theirs. Replace before handing the site over.
+    number: '2348141250336' as string | null,
     defaultMessage:
-      'Hello Amoke Oge, I would like to place an order. Please assist me with your available meals and prices.',
+      "Hello Amoke Oge, I'd like to place an order. Please let me know what's available today and the prices.",
   },
 
   /** Verified social profiles only. */
@@ -63,8 +65,9 @@ export const site = {
 
   nav: [
     { label: 'Home', href: '/#top' },
+    { label: "Today's Menu", href: '/#today' },
     { label: 'Our Story', href: '/#story' },
-    { label: 'Menu', href: '/#menu' },
+    { label: 'Full Menu', href: '/#menu' },
     { label: 'Locations', href: '/#locations' },
     { label: 'Contact', href: '/#contact' },
   ],

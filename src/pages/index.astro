@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
+import TodaysMenu from '../components/TodaysMenu.astro';
 import Intro from '../components/Intro.astro';
 import SignatureDishes from '../components/SignatureDishes.astro';
 import Menu from '../components/Menu.astro';
@@ -17,11 +18,12 @@ const areas = branches.map((b) => b.name.split(' / ')[0]).join(', ');
 ---
 <BaseLayout
   title="Amoke Oge | Authentic Nigerian Restaurant in Lagos — Amala, Jollof & More"
-  description={`Amoke Oge serves authentic Nigerian food in Lagos: amala with ewedu & gbegiri, assorted meat, jollof, ofada rice and yam porridge. Branches in ${areas}. Order on WhatsApp.`}
+  description={`Authentic Nigerian food in Lagos: amala with ewedu & gbegiri, assorted meat, jollof, ofada rice & yam porridge. See today's menu and prices. Branches in ${areas}.`}
   schema={schema}
   overlayHeader
 >
   <Hero />
+  <TodaysMenu />
   <Intro />
   <SignatureDishes />
   <Menu />
