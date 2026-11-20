@@ -1,0 +1,317 @@
+---
+import { Image } from 'astro:assets';
+import { menu } from '../data/menu';
+import { photos, type Photo } from '../data/photos';
+import { whatsappUrl, dishMessage } from '../lib/whatsapp';
+import Icon from './Icon.astro';
+
+const categoryPhoto: Record<string, Photo> = {
+  'swallows-soups': photos.efoRiro,
+  rice: photos.jollofEggEfo,
+  proteins: photos.pepperSoup,
+  specials: photos.yorubaDelicacies,
+  others: photos.dodo,
+};
+const priceAsk = whatsappUrl(
+  "Hello Amoke Oge, please could you share today's menu and prices? Thank you.",
+);
+---
+<section class="section menu" id="menu" aria-labelledby="menu-title">
+  <div class="container">
+    <div class="section-head section-head--center">
+      <p class="eyebrow" data-reveal>Our Menu</p>
+      <h2 id="menu-title" class="h2" data-reveal style="--reveal-delay:80ms">
+        From the pot, <em class="accent">to your plate</em>
+      </h2>
+      <p class="lede" data-reveal style="--reveal-delay:160ms">
+        Choose a category, pick your favourites and send your order on WhatsApp. We’ll confirm availability and
+        today’s prices.
+      </p>
+    </div>
+
+    <div class="menu__tabs-wrap" data-reveal>
+      <div class="menu__tabs" role="tablist" aria-label="Menu categories" data-menu-tabs>
+        {menu.map((cat, i) => (
+          <button
+            type="button"
+            role="tab"
+            id={`tab-${cat.id}`}
+            aria-controls={`panel-${cat.id}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            tabindex={i === 0 ? 0 : -1}
+            class="menu__tab"
+          >
+            {cat.title}
+          </button>
+        ))}
+        <span class="menu__tab-ink" aria-hidden="true" data-menu-ink></span>
+      </div>
+    </div>
+
+    <div class="menu__panels">
+      {menu.map((cat, i) => {
+        const photo = categoryPhoto[cat.id] ?? photos.heroAmalaAbula;
+        return (
+          <section
+            class="menu__panel"
+            role="tabpanel"
+            id={`panel-${cat.id}`}
+            aria-labelledby={`tab-${cat.id}`}
+            data-menu-panel
+            data-active={i === 0 ? 'true' : 'false'}
+          >
+            <div class="menu__visual">
+              <figure class="media">
+                <Image
+                  src={photo.src}
+                  alt={photo.alt}
+                  widths={[400, 640, 900]}
+                  sizes="(min-width: 1024px) 34vw, 92vw"
+                  quality={68}
+                  style={photo.focus ? `object-position:${photo.focus}` : undefined}
+                />
+              </figure>
+              <div class="menu__visual-caption on-dark">
+                <h3 class="menu__cat-title">{cat.title}</h3>
+                <p>{cat.intro}</p>
+              </div>
+            </div>
+
+            <ul class="menu__list">
+              {cat.items.map((item) => (
+                <li class="menu-item">
+                  <div class="menu-item__text">
+                    <h4 class="menu-item__name">
+                      {item.name}
+                      {item.tag && <span class="menu-item__tag">{item.tag}</span>}
+                    </h4>
+                    <p class="menu-item__desc">{item.description}</p>
+                  </div>
+                  <div class="menu-item__side">
+                    {item.price && <span class="menu-item__price">{item.price}</span>}
+                    <a
+                      href={whatsappUrl(dishMessage(item.name))}
+                      class="menu-item__order"
+                      data-order-trigger
+                      data-dish={item.name}
+                      target="_blank"
+                      rel="noopener"
+                      aria-label={`Order ${item.name} on WhatsApp`}
+                    >
+                      <Icon name="whatsapp" size={16} />
+                      <span>Order</span>
+                    </a>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })}
+    </div>
+
+    <div class="menu__note" data-reveal>
+      <Icon name="info" size={20} />
+      <p>
+        Prices change with the market and can differ by branch, so we don’t list them here.
+        Availability varies through the day.
+      </p>
+      <a href={priceAsk} class="link-arrow" target="_blank" rel="noopener">
+        Ask for today’s prices <Icon name="arrow-right" size={18} />
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .menu { background: var(--ivory); }
+  :global(.no-js) .menu__tabs-wrap { display: none; }
+
+  /* Tabs */
+  .menu__tabs-wrap {
+    position: sticky;
+    top: var(--header-h);
+    z-index: 5;
+    margin-inline: calc(var(--gutter) * -1);
+    padding-inline: var(--gutter);
+    background: rgba(250, 246, 238, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .menu__tabs {
+    position: relative;
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    scroll-snap-type: x proximity;
+  }
+  .menu__tabs::-webkit-scrollbar { display: none; }
+  @media (min-width: 900px) { .menu__tabs { justify-content: center; gap: 1.5rem; } }
+  .menu__tab {
+    flex: none;
+    scroll-snap-align: center;
+    padding: 1.1rem 0.9rem;
+    min-height: 56px;
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--ink-muted);
+    white-space: nowrap;
+    transition: color 0.3s var(--ease);
+  }
+  .menu__tab:hover, .menu__tab[aria-selected='true'] { color: var(--forest-900); }
+  .menu__tab-ink {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: 0;
+    background: var(--terracotta);
+    transition: transform 0.5s var(--ease), width 0.5s var(--ease);
+  }
+
+  /* Panels — without JS every category is shown in sequence */
+  .menu__panels { margin-top: clamp(2rem, 4vw, 3.5rem); display: grid; gap: 4rem; }
+  :global(.js) .menu__panels { display: grid; gap: 0; }
+  :global(.js) .menu__panel { grid-area: 1 / 1; }
+  :global(.js) .menu__panel[data-active='false'] { visibility: hidden; opacity: 0; transform: translateY(14px); pointer-events: none; height: 0; overflow: hidden; }
+  :global(.js) .menu__panel[data-active='true'] { animation: panel-in 0.6s var(--ease) both; }
+  @keyframes panel-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+  .menu__panel { display: grid; gap: 2rem; align-items: start; }
+  @media (min-width: 1024px) {
+    .menu__panel { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(3rem, 5vw, 5rem); }
+    .menu__visual { position: sticky; top: calc(var(--header-h) + 90px); }
+  }
+  .menu__visual { position: relative; border-radius: var(--radius); overflow: hidden; }
+  .menu__visual .media { aspect-ratio: 16 / 10; }
+  @media (min-width: 1024px) { .menu__visual .media { aspect-ratio: 4 / 5; } }
+  .menu__visual::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgba(10, 31, 21, 0.85) 0%, rgba(10, 31, 21, 0) 55%);
+  }
+  .menu__visual-caption {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    z-index: 1;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    color: rgba(243, 236, 223, 0.85);
+    font-size: 0.95rem;
+  }
+  .menu__cat-title { font-size: var(--step-3); color: var(--ivory); margin-bottom: 0.4rem; }
+
+  .menu__list { list-style: none; padding: 0; }
+  .menu-item {
+    display: flex;
+    gap: 1.25rem;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.15rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .menu-item:first-child { padding-top: 0.25rem; }
+  .menu-item__name {
+    font-size: var(--step-1);
+    line-height: 1.25;
+    color: var(--charcoal);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.7rem;
+  }
+  .menu-item__tag {
+    font-family: var(--font-body);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--terracotta);
+    border: 1px solid rgba(176, 77, 39, 0.35);
+    border-radius: 999px;
+    padding: 0.15rem 0.55rem;
+  }
+  .menu-item__desc { margin-top: 0.3rem; color: var(--ink-muted); font-size: 0.92rem; line-height: 1.55; }
+  .menu-item__side { display: flex; align-items: center; gap: 1rem; flex: none; }
+  .menu-item__price { font-family: var(--font-display); font-size: 1.1rem; color: var(--forest-800); }
+  .menu-item__order {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 44px;
+    padding: 0.5rem 0.95rem;
+    border-radius: 999px;
+    border: 1px solid rgba(15, 43, 29, 0.25);
+    color: var(--forest-800);
+    font-weight: 700;
+    font-size: 0.82rem;
+    text-decoration: none;
+    transition: all 0.3s var(--ease);
+  }
+  .menu-item__order:hover { background: var(--forest-800); border-color: var(--forest-800); color: var(--ivory); }
+  .menu-item__order :global(svg) { color: #1faa55; transition: color 0.3s; }
+  .menu-item__order:hover :global(svg) { color: #5ee08e; }
+
+  .menu__note {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+    padding: 1.25rem 1.5rem;
+    background: var(--cream);
+    border-radius: var(--radius);
+    font-size: 0.92rem;
+    color: var(--ink-muted);
+  }
+  .menu__note > :global(svg) { color: var(--terracotta); flex: none; }
+  .menu__note p { flex: 1 1 280px; }
+</style>
+
+<script>
+  const tablist = document.querySelector<HTMLElement>('[data-menu-tabs]');
+  const ink = document.querySelector<HTMLElement>('[data-menu-ink]');
+  if (tablist && ink) {
+    const tabs = [...tablist.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const panels = [...document.querySelectorAll<HTMLElement>('[data-menu-panel]')];
+    const moveInk = (tab: HTMLElement) => {
+      ink.style.width = `${tab.offsetWidth}px`;
+      ink.style.transform = `translateX(${tab.offsetLeft}px)`;
+    };
+    const select = (tab: HTMLButtonElement, focus = false) => {
+      tabs.forEach((t) => {
+        const on = t === tab;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+      });
+      panels.forEach((p) => (p.dataset.active = String(p.id === tab.getAttribute('aria-controls'))));
+      moveInk(tab);
+      tab.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+      if (focus) tab.focus();
+      // keep the start of the panel in view when switching from far down the list
+      const section = document.getElementById('menu');
+      const wrap = tablist.parentElement!;
+      if (section && wrap.getBoundingClientRect().top <= parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) + 1) {
+        const target = section.querySelector('.menu__panels')!.getBoundingClientRect().top + window.scrollY - wrap.offsetHeight - 90;
+        window.scrollTo({ top: target, behavior: 'smooth' });
+      }
+    };
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(tab));
+      tab.addEventListener('keydown', (e) => {
+        let next = -1;
+        if (e.key === 'ArrowRight') next = (i + 1) % tabs.length;
+        if (e.key === 'ArrowLeft') next = (i - 1 + tabs.length) % tabs.length;
+        if (e.key === 'Home') next = 0;
+        if (e.key === 'End') next = tabs.length - 1;
+        if (next >= 0) { e.preventDefault(); select(tabs[next], true); }
+      });
+    });
+    const current = tabs.find((t) => t.getAttribute('aria-selected') === 'true') ?? tabs[0];
+    moveInk(current);
+    window.addEventListener('resize', () => moveInk(tabs.find((t) => t.getAttribute('aria-selected') === 'true')!));
+    document.fonts?.ready.then(() => moveInk(tabs.find((t) => t.getAttribute('aria-selected') === 'true')!));
+  }
+</script>

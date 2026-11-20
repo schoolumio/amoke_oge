@@ -1,0 +1,38 @@
+---
+/** Discreet notice shown while `site.conceptMode` is true. */
+---
+<div class="concept-ribbon" role="note">
+  <div class="container concept-ribbon__inner">
+    <span class="concept-ribbon__dot" aria-hidden="true"></span>
+    <p>
+      <strong>Website concept</strong><span class="long"> prepared for Amoke Oge management — photography is demonstration imagery
+      and some details are pending confirmation.</span><span class="short"> · demo photography, details pending confirmation</span>
+    </p>
+  </div>
+</div>
+
+<style>
+  .concept-ribbon {
+    background: var(--forest-950);
+    color: rgba(243, 236, 223, 0.82);
+    font-size: 0.78rem;
+    line-height: 1.45;
+    position: relative;
+    z-index: 60;
+  }
+  .concept-ribbon__inner {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding-block: 0.55rem;
+  }
+  .concept-ribbon__dot {
+    width: 6px; height: 6px; flex: none;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 0 4px rgba(201, 161, 74, 0.18);
+  }
+  .short { display: none; }
+  @media (max-width: 720px) { .long { display: none; } .short { display: inline; } }
+  .concept-ribbon strong { color: var(--gold-soft); font-weight: 700; }
+</style>

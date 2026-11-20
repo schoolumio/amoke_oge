@@ -1,0 +1,73 @@
+---
+/**
+ * Amoke Oge wordmark (concept). A text-based identity used until an official
+ * logo is supplied: an adire-inspired seal plus the name set in Fraunces.
+ */
+interface Props {
+  tone?: 'dark' | 'light';
+  size?: 'sm' | 'md' | 'lg';
+  showDescriptor?: boolean;
+  class?: string;
+}
+const { tone = 'dark', size = 'md', showDescriptor = true, class: className } = Astro.props;
+---
+<span class:list={['wordmark', `wordmark--${tone}`, `wordmark--${size}`, className]}>
+  <svg class="wordmark__seal" viewBox="0 0 48 48" aria-hidden="true">
+    <circle cx="24" cy="24" r="22.5" fill="none" stroke="currentColor" stroke-width="1.1" class="seal-ring" />
+    <circle cx="24" cy="24" r="18.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-dasharray="0.01 3.57" class="seal-dots" />
+    <text x="24" y="29.2" text-anchor="middle" class="seal-text">ao</text>
+  </svg>
+  <span class="wordmark__text">
+    <span class="wordmark__name">Amoke <em>Oge</em></span>
+    {showDescriptor && <span class="wordmark__desc">Nigerian Kitchen · Lagos</span>}
+  </span>
+</span>
+
+<style>
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7em;
+    line-height: 1;
+    color: var(--forest-900);
+    --seal: var(--terracotta);
+    --accent: var(--terracotta);
+  }
+  .wordmark--light { color: var(--ivory); --seal: var(--gold-soft); --accent: var(--gold-soft); }
+  .wordmark--sm { font-size: 0.9rem; }
+  .wordmark--md { font-size: 1rem; }
+  .wordmark--lg { font-size: 1.5rem; }
+  .wordmark__seal { width: 2.6em; height: 2.6em; flex: none; color: var(--seal); }
+  .seal-text {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 17px;
+    font-weight: 500;
+    fill: currentColor;
+    font-variation-settings: 'opsz' 48, 'SOFT' 100, 'WONK' 1;
+  }
+  .wordmark__text { display: grid; gap: 0.4em; }
+  .wordmark__name {
+    font-family: var(--font-display);
+    font-size: 1.55em;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    font-variation-settings: 'opsz' 72, 'SOFT' 50;
+    white-space: nowrap;
+  }
+  .wordmark__name em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+    font-variation-settings: 'opsz' 72, 'SOFT' 100, 'WONK' 1;
+  }
+  .wordmark__desc {
+    font-family: var(--font-body);
+    font-size: 0.6em;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    opacity: 0.72;
+    white-space: nowrap;
+  }
+</style>

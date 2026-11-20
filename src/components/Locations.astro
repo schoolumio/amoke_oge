@@ -1,0 +1,35 @@
+---
+import { branches } from '../data/branches';
+import BranchCard from './BranchCard.astro';
+---
+<section class="section locations" id="locations" aria-labelledby="locations-title">
+  <div class="container">
+    <div class="section-head section-head--split">
+      <div>
+        <p class="eyebrow" data-reveal>Locations</p>
+        <h2 id="locations-title" class="h2" data-reveal style="--reveal-delay:80ms">
+          Find us <em class="accent">across Lagos</em>
+        </h2>
+      </div>
+      <p class="lede" data-reveal style="--reveal-delay:160ms">
+        Walk in for a hot plate, pick up a pack on the way, or message your nearest branch to order ahead.
+      </p>
+    </div>
+
+    <div class="locations__grid">
+      {branches.map((branch, i) => <BranchCard branch={branch} index={i} />)}
+    </div>
+  </div>
+</section>
+
+<style>
+  .locations { background: var(--ivory); }
+  .locations__grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr));
+  }
+  @media (min-width: 1200px) {
+    .locations__grid { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+  }
+</style>

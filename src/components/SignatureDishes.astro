@@ -1,0 +1,151 @@
+---
+import { Image } from 'astro:assets';
+import { signatureDishes } from '../data/dishes';
+import { whatsappUrl, dishMessage } from '../lib/whatsapp';
+import Icon from './Icon.astro';
+---
+<section class="section section--cream signature" id="signature" aria-labelledby="signature-title">
+  <div class="container">
+    <div class="section-head section-head--split">
+      <div>
+        <p class="eyebrow" data-reveal>Signature Dishes</p>
+        <h2 id="signature-title" class="h2" data-reveal style="--reveal-delay:80ms">
+          The plates Lagos <em class="accent">comes back for</em>
+        </h2>
+      </div>
+      <div data-reveal style="--reveal-delay:160ms">
+        <p class="lede">
+          Six dishes that capture the Amoke Oge table. Prices change with the market, so we confirm today’s price
+          when you order.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="signature__scroller" data-carousel>
+    <ol class="signature__grid container" data-carousel-track>
+      {signatureDishes.map((dish, i) => (
+        <li class="dish" data-reveal style={`--reveal-delay:${(i % 3) * 90}ms`}>
+          <figure class="dish__media media zoom">
+            <Image
+              src={dish.photo.src}
+              alt={dish.photo.alt}
+              widths={[360, 520, 720, 900]}
+              sizes="(min-width: 1024px) 30vw, (min-width: 640px) 46vw, 82vw"
+              quality={70}
+              style={dish.photo.focus ? `object-position:${dish.photo.focus}` : undefined}
+            />
+            <span class="dish__num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          </figure>
+          <div class="dish__body">
+            <h3 class="dish__name">
+              {dish.name}
+              {dish.yoruba && <span class="dish__yo" lang="yo">{dish.yoruba}</span>}
+            </h3>
+            <p class="dish__desc">{dish.description}</p>
+            <div class="dish__actions">
+              <a
+                href={whatsappUrl(dishMessage(dish.orderName))}
+                class="btn btn--forest btn--sm"
+                data-order-trigger
+                data-dish={dish.orderName}
+                target="_blank"
+                rel="noopener"
+              >
+                <Icon name="whatsapp" size={18} /> Order this meal
+              </a>
+              <span class="dish__price">Today’s price on request</span>
+            </div>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+  <div class="container signature__nav" aria-hidden="true">
+    <span class="signature__progress"><span data-carousel-bar></span></span>
+  </div>
+</section>
+
+<style>
+  .signature__scroller { overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+  .signature__scroller::-webkit-scrollbar { display: none; }
+  .signature__grid {
+    list-style: none;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: min(82vw, 360px);
+    gap: 1.25rem;
+    padding-bottom: 0.5rem;
+    width: max-content;
+    max-width: none;
+  }
+  .dish { scroll-snap-align: start; scroll-margin-left: var(--gutter); display: flex; flex-direction: column; }
+  .dish__media { aspect-ratio: 4 / 5; border-radius: var(--radius); }
+  .dish__num {
+    position: absolute;
+    left: 1rem; top: 1rem;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--ivory);
+    background: rgba(10, 31, 21, 0.5);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+  }
+  .dish__body { padding-top: 1.35rem; display: flex; flex-direction: column; gap: 0.7rem; flex: 1; }
+  .dish__name { font-size: var(--step-2); line-height: 1.15; }
+  .dish__yo {
+    display: inline-block;
+    margin-left: 0.4rem;
+    font-style: italic;
+    font-size: 0.7em;
+    color: var(--terracotta);
+  }
+  .dish__desc { color: var(--ink-muted); font-size: 0.95rem; }
+  .dish__actions {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .dish__price { font-size: 0.8rem; color: var(--ink-muted); font-style: italic; }
+
+  .signature__nav { margin-top: 1.75rem; }
+  .signature__progress { display: block; height: 2px; background: var(--sand); border-radius: 2px; overflow: hidden; }
+  .signature__progress span { display: block; height: 100%; width: 30%; background: var(--terracotta); transform-origin: left; transition: transform 0.2s linear; }
+
+  @media (min-width: 900px) {
+    .signature__scroller { overflow: visible; }
+    .signature__grid {
+      grid-auto-flow: row;
+      grid-template-columns: repeat(3, 1fr);
+      grid-auto-columns: auto;
+      gap: 3.5rem 2rem;
+    }
+    .dish:nth-child(3n + 2) { margin-top: 3rem; margin-bottom: -3rem; }
+    .signature__grid { padding-bottom: 3rem; width: auto; max-width: calc(var(--max) + var(--gutter) * 2); }
+    .signature__nav { display: none; }
+  }
+</style>
+
+<script>
+  const scroller = document.querySelector<HTMLElement>('[data-carousel]');
+  const bar = document.querySelector<HTMLElement>('[data-carousel-bar]');
+  if (scroller && bar) {
+    const update = () => {
+      const max = scroller.scrollWidth - scroller.clientWidth;
+      const visible = scroller.clientWidth / scroller.scrollWidth;
+      bar.style.width = `${Math.max(visible, 0.15) * 100}%`;
+      bar.style.transform = `translateX(${max > 0 ? (scroller.scrollLeft / max) * ((1 - visible) / visible) * 100 : 0}%)`;
+    };
+    scroller.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  }
+</script>

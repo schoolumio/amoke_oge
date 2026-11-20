@@ -1,0 +1,98 @@
+---
+import { Image } from 'astro:assets';
+import { photos } from '../data/photos';
+import { branches } from '../data/branches';
+import Icon from './Icon.astro';
+
+const reasons = [
+  {
+    icon: 'flame' as const,
+    title: 'Authentic Nigerian flavours',
+    text: 'Traditional Yoruba cooking at its heart — amala turned hot, ewedu, gbegiri and a rich, peppery stew.',
+  },
+  {
+    icon: 'bowl' as const,
+    title: 'A variety of delicacies',
+    text: 'Swallows and soups, jollof, fried and ofada rice, yam porridge and a full spread of proteins.',
+  },
+  {
+    icon: 'bag' as const,
+    title: 'Convenient takeaway',
+    text: 'Every plate can be packed to go. Order ahead on WhatsApp, or through Chowdeck and Glovo.',
+  },
+  {
+    icon: 'value' as const,
+    title: 'Value for money',
+    text: 'Hearty, satisfying plates at everyday prices — good food that doesn’t stretch the budget.',
+  },
+  {
+    icon: 'branches' as const,
+    title: `${branches.length} Lagos branches`,
+    text: `Walk in at ${branches.map((b) => b.name.split(' / ')[0]).join(', ').replace(/, ([^,]*)$/, ' or $1')}.`,
+  },
+];
+const img = photos.takeawayPacks;
+---
+<section class="section section--forest adire-bg why" id="why" aria-labelledby="why-title">
+  <div class="container why__grid">
+    <div class="why__head">
+      <p class="eyebrow" data-reveal>Why Amoke Oge</p>
+      <h2 id="why-title" class="h2" data-reveal style="--reveal-delay:80ms">
+        Proper Nigerian food, <em class="accent">done right</em>
+      </h2>
+      <figure class="why__media media" data-reveal style="--reveal-delay:160ms">
+        <Image
+          src={img.src}
+          alt={img.alt}
+          widths={[400, 640, 900]}
+          sizes="(min-width: 1024px) 34vw, 92vw"
+          quality={68}
+        />
+      </figure>
+    </div>
+
+    <ul class="why__list">
+      {reasons.map((r, i) => (
+        <li class="why__item" data-reveal style={`--reveal-delay:${i * 70}ms`}>
+          <span class="why__icon"><Icon name={r.icon} size={26} /></span>
+          <div>
+            <h3 class="why__title">{r.title}</h3>
+            <p>{r.text}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .why__grid { display: grid; gap: 3rem; }
+  @media (min-width: 1024px) {
+    .why__grid { grid-template-columns: 5fr 7fr; gap: clamp(4rem, 7vw, 7rem); align-items: start; }
+    .why__head { position: sticky; top: calc(var(--header-h) + 2rem); }
+  }
+  .why__head .h2 { margin-top: 1.25rem; }
+  .why__media { margin-top: 2.5rem; aspect-ratio: 4 / 3; border-radius: var(--radius); }
+  @media (max-width: 1023px) { .why__media { display: none; } }
+  .why__list { list-style: none; padding: 0; }
+  .why__item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.25rem 1.5rem;
+    padding: clamp(1.5rem, 3vw, 2.25rem) 0;
+    border-top: 1px solid var(--line-light);
+  }
+  .why__item:last-child { border-bottom: 1px solid var(--line-light); }
+  .why__icon {
+    display: grid;
+    place-items: center;
+    width: 58px; height: 58px;
+    border-radius: 50%;
+    border: 1px solid rgba(224, 200, 143, 0.35);
+    color: var(--gold-soft);
+    transition: background-color 0.4s var(--ease), color 0.4s var(--ease);
+  }
+  .why__item:hover .why__icon { background: var(--gold-soft); color: var(--forest-900); }
+  .why__title { font-size: var(--step-2); margin-bottom: 0.45rem; }
+  .why__item p { color: rgba(243, 236, 223, 0.72); max-width: 34rem; }
+</style>

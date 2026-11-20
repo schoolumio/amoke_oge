@@ -1,0 +1,65 @@
+---
+import { Image } from 'astro:assets';
+import { photos } from '../data/photos';
+import { whatsappUrl } from '../lib/whatsapp';
+import Icon from './Icon.astro';
+
+const img = photos.jollofFriedRice;
+---
+<section class="cta" id="contact" aria-labelledby="cta-title" data-hide-wa-float>
+  <div class="cta__media">
+    <Image src={img.src} alt="" widths={[640, 1000, 1400, 1920]} sizes="100vw" quality={62} style={`object-position:${img.focus}`} />
+  </div>
+  <div class="container cta__inner on-dark">
+    <p class="eyebrow" data-reveal>Hungry yet?</p>
+    <h2 id="cta-title" class="cta__title" data-reveal style="--reveal-delay:80ms">
+      Your Next Delicious Meal <em class="accent">Starts Here.</em>
+    </h2>
+    <p class="cta__text" data-reveal style="--reveal-delay:160ms">
+      Craving something delicious? Explore our menu and get in touch with Amoke Oge today.
+    </p>
+    <div class="cta__actions" data-reveal style="--reveal-delay:240ms">
+      <a href={whatsappUrl()} class="btn btn--primary" data-order-trigger target="_blank" rel="noopener">
+        <Icon name="whatsapp" /> Order on WhatsApp
+      </a>
+      <a href="#locations" class="btn btn--ghost-light">
+        <Icon name="pin" size={20} /> Find a Location
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: var(--forest-950);
+    color: var(--cream);
+    padding-block: clamp(6rem, 4rem + 9vw, 11rem);
+    text-align: center;
+  }
+  .cta__media { position: absolute; inset: 0; z-index: -2; }
+  .cta__media :global(img) { width: 100%; height: 100%; object-fit: cover; transform: scale(1.04); }
+  .cta::before {
+    content: '';
+    position: absolute; inset: 0; z-index: -1;
+    background:
+      radial-gradient(ellipse at center, rgba(10, 31, 21, 0.72) 0%, rgba(10, 31, 21, 0.9) 70%),
+      var(--adire);
+    background-size: auto, 56px;
+  }
+  .cta__inner { display: grid; justify-items: center; }
+  .cta__title {
+    margin-top: 1.25rem;
+    font-size: var(--step-5);
+    color: var(--ivory);
+    max-width: 16ch;
+    font-weight: 380;
+  }
+  .cta__title em { display: block; }
+  .cta__text { margin-top: 1.5rem; font-size: var(--step-1); color: rgba(243, 236, 223, 0.82); max-width: 34rem; }
+  .cta__actions { margin-top: 2.5rem; display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; width: 100%; }
+  .cta__actions .btn { flex: 0 1 260px; }
+  @media (max-width: 520px) { .cta__actions .btn { flex: 1 1 100%; } }
+</style>

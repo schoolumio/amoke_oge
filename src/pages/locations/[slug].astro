@@ -1,0 +1,201 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import { branches, directionsUrl, formatAddress, mapEmbedUrl, type Branch } from '../../data/branches';
+import { signatureDishes } from '../../data/dishes';
+import { photos } from '../../data/photos';
+import { whatsappUrl, branchMessage, dishMessage } from '../../lib/whatsapp';
+import { graph, organizationSchema, restaurantSchema } from '../../lib/schema';
+
+export function getStaticPaths() {
+  return branches.map((branch) => ({ params: { slug: branch.slug }, props: { branch } }));
+}
+
+interface Props { branch: Branch }
+const { branch: b } = Astro.props;
+const base = Astro.site!;
+const others = branches.filter((x) => x.slug !== b.slug);
+const short = b.name.split(' / ')[0];
+const breadcrumb = {
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: new URL('/', base).toString() },
+    { '@type': 'ListItem', position: 2, name: 'Locations', item: new URL('/#locations', base).toString() },
+    { '@type': 'ListItem', position: 3, name: b.name, item: new URL(`/locations/${b.slug}`, base).toString() },
+  ],
+};
+const schema = graph(organizationSchema(base), restaurantSchema(b, base), breadcrumb);
+const hero = photos.heroAmalaAbula;
+---
+<BaseLayout
+  title={`Amoke Oge ${short} | Amala & Nigerian Food in ${b.area}, Lagos`}
+  description={`Visit Amoke Oge ${b.name} at ${formatAddress(b)} for amala with ewedu & gbegiri, jollof rice, ofada rice and more. Get directions or order on WhatsApp.`}
+  schema={schema}
+>
+  <section class="loc-hero section--forest adire-bg">
+    <div class="container loc-hero__grid">
+      <div class="on-dark">
+        <nav aria-label="Breadcrumb" class="crumbs">
+          <a href="/">Home</a><span aria-hidden="true">/</span><a href="/#locations">Locations</a><span aria-hidden="true">/</span><span aria-current="page">{b.name}</span>
+        </nav>
+        <p class="eyebrow">Amoke Oge · {b.area}</p>
+        <h1 class="loc-hero__title">{b.name}</h1>
+        <dl class="loc-facts">
+          <div>
+            <dt><Icon name="pin" size={20} label="Address" /></dt>
+            <dd>
+              <address>{formatAddress(b, { postal: true })}</address>
+              {b.addressNote && <small>{b.addressNote}</small>}
+            </dd>
+          </div>
+          <div>
+            <dt><Icon name="clock" size={20} label="Opening hours" /></dt>
+            <dd>
+              {b.hours.days}{b.hours.times && <> · {b.hours.times}</>}
+              {b.hours.note && <small>{b.hours.note}</small>}
+            </dd>
+          </div>
+          {b.phone && (
+            <div>
+              <dt><span class="sr-only">Phone</span></dt>
+              <dd><a href={`tel:+${b.phone}`}>+{b.phone}</a></dd>
+            </div>
+          )}
+        </dl>
+        <div class="loc-hero__actions">
+          <a href={whatsappUrl(branchMessage(b), b)} class="btn btn--primary" data-order-trigger data-branch={b.slug} target="_blank" rel="noopener">
+            <Icon name="whatsapp" /> Order from {short}
+          </a>
+          <a href={directionsUrl(b)} class="btn btn--ghost-light" target="_blank" rel="noopener">
+            <Icon name="directions" size={20} /> Get directions
+          </a>
+        </div>
+        {b.orderOnline?.length ? (
+          <p class="loc-online">
+            Delivery also available on{' '}
+            {b.orderOnline.map((o) => <a href={o.url} target="_blank" rel="noopener">{o.label}</a>)}
+          </p>
+        ) : null}
+      </div>
+      <figure class="loc-hero__media media">
+        <Image src={hero.src} alt={hero.alt} widths={[480, 720, 960]} sizes="(min-width: 1024px) 40vw, 92vw" quality={68} loading="eager" style={`object-position:${hero.focus}`} />
+      </figure>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container loc-map-grid">
+      <div>
+        <p class="eyebrow">Find us</p>
+        <h2 class="h2" style="margin-top:1rem">Getting to <em class="accent">{short}</em></h2>
+        <p class="lede" style="margin-top:1.25rem">
+          Use the map for directions, then walk in for a hot plate or message ahead so your order is ready
+          when you arrive.
+        </p>
+        <ul class="loc-services">
+          {b.services.map((s) => <li><Icon name="check" size={18} /> {s}</li>)}
+        </ul>
+      </div>
+      <div class="loc-map">
+        <iframe
+          title={`Map showing Amoke Oge ${b.name}`}
+          src={mapEmbedUrl(b)}
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen
+        ></iframe>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--cream">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow">Popular at Amoke Oge</p>
+        <h2 class="h2">Order a <em class="accent">favourite</em></h2>
+      </div>
+      <ul class="loc-dishes">
+        {signatureDishes.map((d) => (
+          <li>
+            <figure class="media zoom">
+              <Image src={d.photo.src} alt={d.photo.alt} widths={[300, 480, 640]} sizes="(min-width: 900px) 30vw, 46vw" quality={66} />
+            </figure>
+            <h3>{d.name}</h3>
+            <a href={whatsappUrl(dishMessage(d.orderName, b), b)} class="link-arrow" data-order-trigger data-dish={d.orderName} data-branch={b.slug} target="_blank" rel="noopener">
+              Order this meal <Icon name="arrow-right" size={18} />
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p style="margin-top:2.5rem"><a href="/#menu" class="btn btn--outline">See the full menu</a></p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2 class="h3">Other Amoke Oge branches</h2>
+      <ul class="loc-others">
+        {others.map((o) => (
+          <li>
+            <a href={`/locations/${o.slug}`}>
+              <strong>{o.name}</strong>
+              <span>{formatAddress(o)}</span>
+              <Icon name="arrow-right" size={20} />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .loc-hero { padding-block: clamp(3rem, 2rem + 5vw, 6rem); }
+  .loc-hero__grid { display: grid; gap: 3rem; align-items: center; }
+  @media (min-width: 1024px) { .loc-hero__grid { grid-template-columns: 1.1fr 1fr; gap: 5rem; } }
+  .crumbs { display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.82rem; color: rgba(243, 236, 223, 0.6); margin-bottom: 2rem; }
+  .crumbs a { color: rgba(243, 236, 223, 0.8); }
+  .loc-hero__title { font-size: var(--step-5); color: var(--ivory); margin-top: 1rem; font-weight: 380; }
+  .loc-facts { margin-top: 2rem; display: grid; gap: 1rem; color: var(--cream); }
+  .loc-facts > div { display: grid; grid-template-columns: 24px 1fr; gap: 0.9rem; }
+  .loc-facts dt { color: var(--gold-soft); padding-top: 2px; }
+  .loc-facts dd { display: grid; gap: 0.15rem; }
+  .loc-facts address { font-style: normal; }
+  .loc-facts small { color: rgba(243, 236, 223, 0.6); font-style: italic; }
+  .loc-hero__actions { margin-top: 2.25rem; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .loc-online { margin-top: 1.25rem; font-size: 0.88rem; color: rgba(243, 236, 223, 0.7); }
+  .loc-online a { color: var(--gold-soft); font-weight: 700; }
+  .loc-hero__media { aspect-ratio: 4 / 5; border-radius: var(--radius); max-height: 640px; }
+  @media (max-width: 1023px) { .loc-hero__media { aspect-ratio: 16 / 10; } }
+
+  .loc-map-grid { display: grid; gap: 2.5rem; align-items: center; }
+  @media (min-width: 1024px) { .loc-map-grid { grid-template-columns: 1fr 1.3fr; gap: 4rem; } }
+  .loc-services { list-style: none; padding: 0; margin-top: 1.75rem; display: grid; gap: 0.6rem; }
+  .loc-services li { display: flex; gap: 0.6rem; align-items: center; font-weight: 600; color: var(--forest-800); }
+  .loc-services :global(svg) { color: var(--terracotta); }
+  .loc-map { aspect-ratio: 4 / 3; border-radius: var(--radius); overflow: hidden; background: var(--sand); box-shadow: var(--shadow-md); }
+  .loc-map iframe { width: 100%; height: 100%; border: 0; filter: saturate(0.85); }
+
+  .loc-dishes { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem 1rem; }
+  @media (min-width: 900px) { .loc-dishes { grid-template-columns: repeat(3, 1fr); gap: 3rem 2rem; } }
+  .loc-dishes li { display: grid; gap: 0.8rem; justify-items: start; align-content: start; }
+  .loc-dishes figure { aspect-ratio: 1; width: 100%; border-radius: var(--radius); }
+  .loc-dishes h3 { font-size: var(--step-1); }
+
+  .loc-others { list-style: none; padding: 0; margin-top: 1.5rem; border-top: 1px solid var(--line); }
+  .loc-others a {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.2rem 1rem;
+    align-items: center;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--line);
+    text-decoration: none;
+    transition: padding 0.35s var(--ease), color 0.3s;
+  }
+  .loc-others a:hover { padding-left: 0.75rem; color: var(--terracotta); }
+  .loc-others strong { font-family: var(--font-display); font-weight: 400; font-size: var(--step-2); }
+  .loc-others span { grid-column: 1; font-size: 0.9rem; color: var(--ink-muted); }
+  .loc-others :global(svg) { grid-column: 2; grid-row: 1 / span 2; }
+</style>

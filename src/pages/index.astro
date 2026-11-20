@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import Intro from '../components/Intro.astro';
+import SignatureDishes from '../components/SignatureDishes.astro';
+import Menu from '../components/Menu.astro';
+import WhyUs from '../components/WhyUs.astro';
+import Locations from '../components/Locations.astro';
+import Gallery from '../components/Gallery.astro';
+import CallToAction from '../components/CallToAction.astro';
+import { branches } from '../data/branches';
+import { graph, organizationSchema, restaurantSchema, websiteSchema } from '../lib/schema';
+
+const base = Astro.site!;
+const schema = graph(websiteSchema(base), organizationSchema(base), ...branches.map((b) => restaurantSchema(b, base)));
+const areas = branches.map((b) => b.name.split(' / ')[0]).join(', ');
+---
+<BaseLayout
+  title="Amoke Oge | Authentic Nigerian Restaurant in Lagos — Amala, Jollof & More"
+  description={`Amoke Oge serves authentic Nigerian food in Lagos: amala with ewedu & gbegiri, assorted meat, jollof, ofada rice and yam porridge. Branches in ${areas}. Order on WhatsApp.`}
+  schema={schema}
+  overlayHeader
+>
+  <Hero />
+  <Intro />
+  <SignatureDishes />
+  <Menu />
+  <WhyUs />
+  <Locations />
+  <Gallery />
+  <CallToAction />
+</BaseLayout>

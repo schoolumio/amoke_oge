@@ -1,0 +1,113 @@
+---
+import type { Branch } from '../data/branches';
+import { directionsUrl, formatAddress } from '../data/branches';
+import { whatsappUrl, branchMessage } from '../lib/whatsapp';
+import Icon from './Icon.astro';
+
+interface Props { branch: Branch; index: number; headingLevel?: 'h2' | 'h3' }
+const { branch: b, index, headingLevel = 'h3' } = Astro.props;
+const Heading = headingLevel;
+---
+<article class="branch" data-reveal style={`--reveal-delay:${index * 80}ms`}>
+  <header class="branch__head">
+    <span class="branch__num">{String(index + 1).padStart(2, '0')}</span>
+    <div>
+      <Heading class="branch__name">
+        <a href={`/locations/${b.slug}`}>{b.name}</a>
+      </Heading>
+      <p class="branch__area">{b.area}</p>
+    </div>
+  </header>
+
+  <dl class="branch__details">
+    <div>
+      <dt><Icon name="pin" size={20} label="Address" /></dt>
+      <dd>
+        <address>{formatAddress(b, { postal: true })}</address>
+        {b.addressNote && <span class="branch__note">{b.addressNote}</span>}
+      </dd>
+    </div>
+    <div>
+      <dt><Icon name="clock" size={20} label="Opening hours" /></dt>
+      <dd>
+        <span>{b.hours.days}</span>
+        {b.hours.times && <span class="branch__times">{b.hours.times}</span>}
+        {b.hours.note && <span class="branch__note">{b.hours.note}</span>}
+      </dd>
+    </div>
+    {b.phone && (
+      <div>
+        <dt><span class="sr-only">Phone</span></dt>
+        <dd><a href={`tel:+${b.phone}`}>+{b.phone}</a></dd>
+      </div>
+    )}
+  </dl>
+
+  <ul class="branch__services" aria-label="Services">
+    {b.services.map((s) => <li>{s}</li>)}
+  </ul>
+
+  <div class="branch__actions">
+    <a href={directionsUrl(b)} class="btn btn--outline btn--sm" target="_blank" rel="noopener">
+      <Icon name="directions" size={18} /> Directions
+    </a>
+    <a
+      href={whatsappUrl(branchMessage(b), b)}
+      class="btn btn--forest btn--sm"
+      data-order-trigger
+      data-branch={b.slug}
+      target="_blank"
+      rel="noopener"
+    >
+      <Icon name="whatsapp" size={18} /> Order from {b.name.split(' / ')[0]}
+    </a>
+  </div>
+  {b.orderOnline?.length ? (
+    <p class="branch__online">
+      Also on
+      {b.orderOnline.map((o) => (
+        <a href={o.url} target="_blank" rel="noopener">{o.label} <Icon name="arrow-up-right" size={14} /></a>
+      ))}
+    </p>
+  ) : null}
+</article>
+
+<style>
+  .branch {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    transition: border-color 0.4s var(--ease), box-shadow 0.4s var(--ease), transform 0.4s var(--ease);
+  }
+  .branch:hover { border-color: rgba(176, 77, 39, 0.35); box-shadow: var(--shadow-md); }
+  .branch__head { display: flex; gap: 1rem; align-items: baseline; }
+  .branch__num { font-family: var(--font-display); font-style: italic; color: var(--terracotta); font-size: 1.1rem; }
+  .branch__name { font-size: var(--step-3); line-height: 1.05; }
+  .branch__name a { text-decoration: none; background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat; transition: background-size 0.45s var(--ease); }
+  .branch__name a:hover { background-size: 100% 1px; }
+  .branch__area { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-muted); margin-top: 0.4rem; }
+  .branch__details { display: grid; gap: 0.9rem; padding-top: 1.2rem; border-top: 1px solid var(--line); }
+  .branch__details > div { display: grid; grid-template-columns: 24px 1fr; gap: 0.9rem; align-items: start; }
+  .branch__details dt { color: var(--terracotta); padding-top: 2px; }
+  .branch__details dd { display: grid; gap: 0.1rem; font-size: 0.95rem; color: var(--ink); }
+  .branch__details address { font-style: normal; }
+  .branch__times { font-weight: 600; }
+  .branch__note { font-size: 0.8rem; color: var(--ink-muted); font-style: italic; }
+  .branch__services { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .branch__services li {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    background: var(--cream);
+    color: var(--forest-800);
+  }
+  .branch__actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: auto; }
+  .branch__actions .btn { flex: 1 1 160px; }
+  .branch__online { font-size: 0.82rem; color: var(--ink-muted); display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+  .branch__online a { display: inline-flex; align-items: center; gap: 0.2rem; font-weight: 700; color: var(--forest-800); }
+</style>

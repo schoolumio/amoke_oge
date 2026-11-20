@@ -1,0 +1,245 @@
+---
+import { Picture } from 'astro:assets';
+import { photos } from '../data/photos';
+import { branches } from '../data/branches';
+import { whatsappUrl } from '../lib/whatsapp';
+import Icon from './Icon.astro';
+
+const hero = photos.heroAmalaAbula;
+---
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="hero__media">
+    <Picture
+      src={hero.src}
+      alt={hero.alt}
+      formats={['avif', 'webp']}
+      widths={[640, 900, 1200, 1600, 1920]}
+      sizes="(min-width: 1024px) 60vw, 100vw"
+      loading="eager"
+      fetchpriority="high"
+      quality={55}
+      style={`object-position:${hero.focus}`}
+    />
+    <div class="hero__badge" aria-hidden="true">
+      <svg viewBox="0 0 120 120">
+        <defs><path id="badge-circle" d="M60 60m-46 0a46 46 0 1 1 92 0a46 46 0 1 1 -92 0" /></defs>
+        <text><textPath href="#badge-circle">Amala · Ewedu · Gbegiri · Ata dindin · </textPath></text>
+      </svg>
+      <span class="hero__badge-core">Abula</span>
+    </div>
+    <p class="hero__caption"><span>Pictured</span> Amala with ewedu, gbegiri & stew</p>
+  </div>
+
+  <div class="container hero__inner">
+    <div class="hero__content on-dark">
+      <p class="eyebrow hero__eyebrow">Authentic Nigerian Kitchen · Lagos</p>
+      <h1 id="hero-title" class="hero__title">
+        Authentic Nigerian Flavours. <em class="accent">Made to Satisfy.</em>
+      </h1>
+      <p class="hero__lede">
+        From delicious amala and rich traditional soups to satisfying rice dishes, experience the taste of
+        authentic Nigerian cooking at Amoke Oge.
+      </p>
+      <div class="hero__ctas">
+        <a href="#menu" class="btn btn--primary">
+          Explore Our Menu <Icon name="arrow-right" size={20} />
+        </a>
+        <a href={whatsappUrl()} class="btn btn--ghost-light" data-order-trigger target="_blank" rel="noopener">
+          <Icon name="whatsapp" /> Order on WhatsApp
+        </a>
+      </div>
+      <ul class="hero__facts" aria-label="At a glance">
+        <li><Icon name="branches" size={20} /><span><strong>{branches.length}</strong> Lagos branches</span></li>
+        <li><Icon name="bag" size={20} /><span>Dine-in &amp; takeaway</span></li>
+        <li><Icon name="whatsapp" size={18} /><span>Order on WhatsApp</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    margin-top: calc(-1 * var(--header-h));
+    background: var(--forest-900);
+    color: var(--cream);
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .hero::before {
+    /* adire texture across the green panel */
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: var(--adire);
+    background-size: 56px;
+    opacity: 0.06;
+    z-index: -1;
+  }
+
+  /* ----- Mobile first: image on top, content below ----- */
+  .hero__media {
+    position: relative;
+    height: min(62svh, 560px);
+    min-height: 380px;
+  }
+  .hero__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: hero-settle 2.4s var(--ease) both;
+  }
+  @keyframes hero-settle { from { transform: scale(1.08); opacity: 0.4; } to { transform: scale(1); opacity: 1; } }
+  .hero__media::before,
+  .hero__media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .hero__media::before { /* keeps the transparent header legible */
+    background: linear-gradient(180deg, rgba(10, 31, 21, 0.72) 0%, rgba(10, 31, 21, 0) 28%);
+  }
+  .hero__media::after {
+    background: linear-gradient(0deg, var(--forest-900) 0%, rgba(15, 43, 29, 0) 34%);
+  }
+  .hero__inner { position: relative; z-index: 2; margin-top: -4.5rem; padding-bottom: 3.5rem; }
+  .hero__eyebrow { animation: rise 1s 0.15s var(--ease) both; }
+  @media (max-width: 479px) { .hero__eyebrow { letter-spacing: 0.16em; font-size: 0.68rem; } .hero__eyebrow::before { width: 18px; } }
+  .hero__title {
+    font-size: var(--step-5);
+    line-height: 1.02;
+    color: var(--ivory);
+    margin-top: 1rem;
+    font-weight: 380;
+    letter-spacing: -0.025em;
+    animation: rise 1.1s 0.25s var(--ease) both;
+  }
+  .hero__title em { display: block; font-weight: 300; }
+  .hero__lede {
+    margin-top: 1.4rem;
+    font-size: var(--step-1);
+    line-height: 1.6;
+    color: rgba(243, 236, 223, 0.8);
+    max-width: 34rem;
+    animation: rise 1.1s 0.38s var(--ease) both;
+  }
+  .hero__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    animation: rise 1.1s 0.5s var(--ease) both;
+  }
+  .hero__ctas .btn { flex: 1 1 220px; }
+  .hero__facts {
+    list-style: none;
+    padding: 1.5rem 0 0;
+    margin-top: 2.5rem;
+    border-top: 1px solid var(--line-light);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem 1.75rem;
+    font-size: 0.875rem;
+    color: rgba(243, 236, 223, 0.75);
+    animation: rise 1.1s 0.62s var(--ease) both;
+  }
+  .hero__facts li { display: inline-flex; align-items: center; gap: 0.55rem; }
+  .hero__facts :global(svg) { color: var(--gold); }
+  .hero__facts strong { color: var(--ivory); font-weight: 700; }
+  @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+  .hero__caption {
+    position: absolute;
+    z-index: 2;
+    right: var(--gutter);
+    bottom: 5.5rem;
+    display: none;
+    gap: 0.6rem;
+    align-items: center;
+    padding: 0.5rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(10, 31, 21, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    font-size: 0.78rem;
+    color: var(--cream);
+  }
+  .hero__caption span {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold-soft);
+  }
+
+  .hero__badge {
+    position: absolute;
+    z-index: 2;
+    right: var(--gutter);
+    top: calc(var(--header-h) + 1rem);
+    width: 108px;
+    height: 108px;
+    display: grid;
+    place-items: center;
+    color: var(--ivory);
+  }
+  .hero__badge svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    animation: spin 28s linear infinite;
+  }
+  .hero__badge text {
+    font-family: var(--font-body);
+    font-size: 9.6px;
+    font-weight: 700;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    fill: currentColor;
+  }
+  .hero__badge-core {
+    width: 58px; height: 58px;
+    display: grid; place-items: center;
+    border-radius: 50%;
+    background: var(--terracotta);
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--ivory);
+    box-shadow: 0 0 0 6px rgba(176, 77, 39, 0.25);
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ----- Desktop: editorial split, image bleeds to the right edge ----- */
+  @media (min-width: 1024px) {
+    .hero { min-height: max(720px, 100svh); display: flex; align-items: center; }
+    .hero__media {
+      position: absolute;
+      inset: 0 0 0 auto;
+      width: 58%;
+      height: 100%;
+      min-height: 0;
+    }
+    .hero__media::before {
+      background: linear-gradient(180deg, rgba(10, 31, 21, 0.55) 0%, rgba(10, 31, 21, 0) 22%);
+    }
+    .hero__media::after {
+      background:
+        linear-gradient(90deg, var(--forest-900) 0%, rgba(15, 43, 29, 0.55) 14%, rgba(15, 43, 29, 0) 36%),
+        linear-gradient(0deg, rgba(10, 31, 21, 0.45) 0%, rgba(10, 31, 21, 0) 30%);
+    }
+    .hero__inner { margin-top: 0; padding-block: calc(var(--header-h) + 4rem) 5rem; }
+    .hero__content { max-width: 37rem; }
+    .hero__ctas .btn { flex: 0 0 auto; }
+    .hero__caption { display: inline-flex; bottom: 2.5rem; right: auto; left: 22%; }
+    .hero__badge { width: 132px; height: 132px; top: calc(var(--header-h) + 3rem); right: 3rem; }
+    .hero__badge-core { width: 70px; height: 70px; font-size: 1.25rem; }
+  }
+  @media (min-width: 1400px) {
+    .hero__media { width: 60%; }
+    .hero__content { max-width: 40rem; }
+  }
+</style>

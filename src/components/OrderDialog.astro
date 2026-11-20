@@ -1,0 +1,309 @@
+---
+/**
+ * WhatsApp order enquiry flow.
+ * Every [data-order-trigger] link works on its own (it is a plain wa.me link).
+ * With JavaScript, clicking one opens this dialog instead, so the customer can
+ * pick dishes, a branch and pickup/delivery, preview the message, and continue
+ * to WhatsApp with everything prefilled.
+ */
+import { site } from '../config/site';
+import { branches } from '../data/branches';
+import { menu } from '../data/menu';
+import { normaliseNumber } from '../lib/whatsapp';
+import Icon from './Icon.astro';
+
+const data = {
+  defaultNumber: normaliseNumber(site.whatsapp.number),
+  defaultMessage: site.whatsapp.defaultMessage,
+  branches: branches.map((b) => ({ slug: b.slug, name: b.name, number: normaliseNumber(b.whatsapp) })),
+};
+---
+<dialog class="order" aria-labelledby="order-title" data-order-dialog>
+  <script type="application/json" data-order-data set:html={JSON.stringify(data)} />
+  <form method="dialog" class="order__shell" data-order-form>
+    <header class="order__head">
+      <div>
+        <span class="eyebrow">Order on WhatsApp</span>
+        <h2 id="order-title" class="order__title">Build your <em class="accent">order</em></h2>
+      </div>
+      <button class="order__close" type="button" aria-label="Close order form" data-order-close>
+        <Icon name="close" />
+      </button>
+    </header>
+
+    <div class="order__body">
+      <div class="order__fields">
+        <fieldset class="field">
+          <legend class="field__label">Your meal</legend>
+          <ul class="order__items" data-order-items aria-live="polite"></ul>
+          <p class="order__empty" data-order-empty>
+            Add dishes below, or just tell us what you would like in the notes.
+          </p>
+          <label class="sr-only" for="order-add">Add a dish</label>
+          <div class="select">
+            <select id="order-add" data-order-add>
+              <option value="">+ Add a dish from the menu</option>
+              {menu.map((cat) => (
+                <optgroup label={cat.title}>
+                  {cat.items.map((item) => <option value={item.name}>{item.name}</option>)}
+                </optgroup>
+              ))}
+            </select>
+          </div>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend class="field__label">Branch</legend>
+          <div class="chips">
+            {branches.map((b, i) => (
+              <label class="chip">
+                <input type="radio" name="branch" value={b.slug} checked={i === 0} />
+                <span>{b.name}</span>
+              </label>
+            ))}
+            <label class="chip">
+              <input type="radio" name="branch" value="" />
+              <span>Not sure yet</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset class="field">
+          <legend class="field__label">How would you like it?</legend>
+          <div class="segmented">
+            <label><input type="radio" name="mode" value="Pickup (takeaway)" checked /><span>Pickup</span></label>
+            <label><input type="radio" name="mode" value="Dine-in" /><span>Dine-in</span></label>
+            <label><input type="radio" name="mode" value="Delivery (please advise)" /><span>Delivery</span></label>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <label class="field__label" for="order-notes">Notes <span class="field__opt">optional</span></label>
+          <textarea id="order-notes" name="notes" rows="2" maxlength="400" placeholder="e.g. extra ewedu, less pepper, pickup around 1pm"></textarea>
+        </div>
+        <div class="field">
+          <label class="field__label" for="order-name">Your name <span class="field__opt">optional</span></label>
+          <input id="order-name" name="name" type="text" autocomplete="given-name" maxlength="60" />
+        </div>
+      </div>
+
+      <aside class="order__preview" aria-label="Message preview">
+        <p class="order__preview-label">Message preview</p>
+        <div class="bubble"><pre data-order-preview></pre></div>
+        <p class="order__fine">
+          <Icon name="info" size={16} />
+          <span>Prices and availability are confirmed by the restaurant on WhatsApp. Nothing is charged here.</span>
+        </p>
+      </aside>
+    </div>
+
+    <footer class="order__foot">
+      <a href="https://wa.me/" class="btn btn--primary btn--block order__send" target="_blank" rel="noopener" data-order-send>
+        <Icon name="whatsapp" /> Continue to WhatsApp
+      </a>
+    </footer>
+  </form>
+</dialog>
+
+<style>
+  .order {
+    width: min(100% - 1.5rem, 980px);
+    max-height: min(92dvh, 860px);
+    margin: auto;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-lg);
+    background: var(--ivory);
+    color: var(--ink);
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    transform: translateY(16px) scale(0.985);
+    transition: opacity 0.35s var(--ease), transform 0.45s var(--ease);
+  }
+  .order.is-open { opacity: 1; transform: none; }
+  .order::backdrop { background: rgba(10, 31, 21, 0.6); backdrop-filter: blur(4px); }
+  @media (max-width: 640px) {
+    .order {
+      width: 100%;
+      max-width: 100%;
+      max-height: 94dvh;
+      margin: auto 0 0;
+      border-radius: 16px 16px 0 0;
+      transform: translateY(40px);
+    }
+  }
+  .order__shell { display: flex; flex-direction: column; max-height: inherit; }
+  .order__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.4rem clamp(1.1rem, 3vw, 2rem) 1rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .order__title { font-size: var(--step-3); margin-top: 0.4rem; }
+  .order__close {
+    display: grid; place-items: center;
+    width: 44px; height: 44px; flex: none;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    transition: background-color 0.3s var(--ease);
+  }
+  .order__close:hover { background: var(--cream); }
+  .order__body {
+    overflow-y: auto;
+    display: grid;
+    gap: 1.75rem;
+    padding: 1.4rem clamp(1.1rem, 3vw, 2rem);
+    overscroll-behavior: contain;
+  }
+  @media (min-width: 820px) {
+    .order__body { grid-template-columns: 1.25fr 1fr; gap: 2.5rem; }
+  }
+  .order__fields { display: grid; gap: 1.4rem; min-width: 0; }
+  .field { border: 0; padding: 0; display: grid; gap: 0.6rem; min-width: 0; }
+  .field__label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--forest-800);
+    padding: 0;
+  }
+  .field__opt { font-weight: 500; letter-spacing: 0.05em; text-transform: none; color: var(--ink-muted); }
+  .field textarea, .field input[type='text'], .select select {
+    width: 100%;
+    border: 1px solid var(--sand-deep);
+    border-radius: var(--radius);
+    background: #fff;
+    padding: 0.8rem 0.9rem;
+    font-size: 1rem;
+    min-height: 48px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .field textarea:focus, .field input:focus, .select select:focus {
+    outline: none;
+    border-color: var(--forest-600);
+    box-shadow: 0 0 0 3px rgba(42, 95, 67, 0.15);
+  }
+  .select { position: relative; }
+  .select select { appearance: none; padding-right: 2.5rem; cursor: pointer; color: var(--forest-800); font-weight: 600; }
+  .select::after {
+    content: '';
+    position: absolute; right: 1rem; top: 50%;
+    width: 8px; height: 8px;
+    border-right: 1.5px solid var(--forest-800); border-bottom: 1.5px solid var(--forest-800);
+    transform: translateY(-70%) rotate(45deg);
+    pointer-events: none;
+  }
+  .order__items { list-style: none; padding: 0; display: grid; gap: 0.5rem; }
+  .order__items:empty { display: none; }
+  .order__empty { font-size: 0.9rem; color: var(--ink-muted); }
+  .order__items :global(li) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.55rem 0.55rem 0.55rem 0.9rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    animation: item-in 0.4s var(--ease);
+  }
+  @keyframes item-in { from { opacity: 0; transform: translateY(-6px); } }
+  .order__items :global(.item-name) { font-weight: 600; font-size: 0.95rem; line-height: 1.3; }
+  .order__items :global(.qty) { display: inline-flex; align-items: center; gap: 0.15rem; flex: none; }
+  .order__items :global(.qty button) {
+    display: grid; place-items: center;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    color: var(--forest-800);
+    transition: background-color 0.2s;
+  }
+  .order__items :global(.qty button:hover) { background: var(--cream); }
+  .order__items :global(.qty output) { min-width: 1.6rem; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .chip input, .segmented input { position: absolute; opacity: 0; pointer-events: none; }
+  .chip span {
+    display: inline-flex; align-items: center;
+    min-height: 42px;
+    padding: 0.45rem 1rem;
+    border: 1px solid var(--sand-deep);
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s var(--ease);
+  }
+  .chip span:hover { border-color: var(--forest-600); }
+  .chip input:checked + span { background: var(--forest-800); border-color: var(--forest-800); color: var(--ivory); }
+  .chip input:focus-visible + span, .segmented input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .segmented {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 4px;
+    background: var(--cream);
+    border-radius: 999px;
+  }
+  .segmented span {
+    display: grid; place-items: center;
+    min-height: 42px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s var(--ease);
+  }
+  .segmented input:checked + span { background: #fff; color: var(--forest-900); box-shadow: var(--shadow-sm); }
+
+  .order__preview {
+    align-self: start;
+    position: sticky;
+    top: 0;
+    padding: 1.1rem;
+    border-radius: var(--radius-lg);
+    background: #ece4d6;
+    min-width: 0;
+  }
+  .order__preview-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 0.75rem; }
+  .bubble {
+    position: relative;
+    background: #dcf8c6;
+    border-radius: 10px 0 10px 10px;
+    padding: 0.8rem 0.95rem;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+    margin-left: 1.25rem;
+  }
+  .bubble::after {
+    content: '';
+    position: absolute; right: -8px; top: 0;
+    border-left: 8px solid #dcf8c6;
+    border-bottom: 10px solid transparent;
+  }
+  .bubble pre {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: #1b2a20;
+    max-height: 300px;
+    overflow: auto;
+  }
+  .order__fine { display: flex; gap: 0.5rem; margin-top: 0.9rem; font-size: 0.78rem; line-height: 1.5; color: var(--ink-muted); }
+  .order__fine :global(svg) { flex: none; margin-top: 2px; }
+  @media (max-width: 819px) {
+    .order__preview { position: static; }
+  }
+  .order__foot {
+    padding: 1rem clamp(1.1rem, 3vw, 2rem) calc(1rem + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--line);
+    background: var(--ivory);
+  }
+</style>
+
+<script>
+  import { initOrderDialog } from '../lib/order-dialog';
+  initOrderDialog();
+</script>

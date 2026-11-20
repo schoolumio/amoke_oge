@@ -1,0 +1,23 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Page not found | Amoke Oge" description="The page you were looking for could not be found.">
+  <section class="section nf adire-bg">
+    <div class="container nf__inner">
+      <p class="eyebrow">404</p>
+      <h1 class="display">This plate is <em class="accent">empty.</em></h1>
+      <p class="lede">The page you were looking for has moved or no longer exists. Let’s get you back to the good food.</p>
+      <div class="nf__actions">
+        <a href="/" class="btn btn--primary">Back to home</a>
+        <a href="/#menu" class="btn btn--outline">See the menu</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf { min-height: 70vh; display: grid; align-items: center; text-align: center; }
+  .nf::before { opacity: 0.12; filter: invert(0.6); }
+  .nf__inner { display: grid; gap: 1.5rem; justify-items: center; }
+  .nf__actions { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; margin-top: 1rem; }
+</style>

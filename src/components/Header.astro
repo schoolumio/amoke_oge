@@ -1,0 +1,271 @@
+---
+import { site } from '../config/site';
+import { whatsappUrl } from '../lib/whatsapp';
+import Wordmark from './Wordmark.astro';
+import Icon from './Icon.astro';
+
+interface Props { overlay?: boolean }
+const { overlay = false } = Astro.props;
+const wa = whatsappUrl();
+---
+<header class:list={['site-header', { 'is-overlay': overlay, 'is-solid': !overlay }]} data-header>
+  <div class="container site-header__inner">
+    <a href="/" class="site-header__brand" aria-label="Amoke Oge — home">
+      <Wordmark tone="light" />
+    </a>
+
+    <nav class="site-nav" aria-label="Main">
+      <ul>
+        {site.nav.map((item) => (
+          <li><a href={item.href} data-nav-link>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <a href={wa} class="btn btn--primary btn--sm header-cta" data-order-trigger target="_blank" rel="noopener">
+        <Icon name="whatsapp" size={18} />
+        <span>Order on WhatsApp</span>
+      </a>
+      <a href={wa} class="icon-btn icon-btn--wa" data-order-trigger target="_blank" rel="noopener" aria-label="Order on WhatsApp">
+        <Icon name="whatsapp" size={22} />
+      </a>
+      <button class="icon-btn menu-toggle" type="button" aria-label="Open menu" aria-haspopup="dialog" aria-controls="mobile-nav" data-drawer-open>
+        <Icon name="menu" size={26} />
+      </button>
+    </div>
+  </div>
+</header>
+
+<dialog class="drawer" id="mobile-nav" aria-label="Site navigation" data-drawer>
+  <div class="drawer__panel adire-bg">
+    <div class="drawer__top">
+      <Wordmark tone="light" showDescriptor={false} />
+      <button class="icon-btn icon-btn--light" type="button" aria-label="Close menu" data-drawer-close>
+        <Icon name="close" size={26} />
+      </button>
+    </div>
+    <nav aria-label="Mobile">
+      <ol class="drawer__links">
+        {site.nav.map((item, i) => (
+          <li style={`--i:${i}`}>
+            <a href={item.href} data-drawer-link>
+              <span class="drawer__num">0{i + 1}</span>
+              <span>{item.label}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+    <div class="drawer__foot">
+      <a href={wa} class="btn btn--primary btn--block" data-order-trigger target="_blank" rel="noopener">
+        <Icon name="whatsapp" /> Order on WhatsApp
+      </a>
+      <p class="drawer__meta">
+        Ikoyi · Bawala · Surulere · Onipanu
+        <br />
+        {site.socials.map((s) => (
+          <a href={s.url} target="_blank" rel="noopener">{s.label} {s.handle}</a>
+        ))}
+      </p>
+    </div>
+  </div>
+</dialog>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: var(--header-h);
+    transition: background-color 0.45s var(--ease), box-shadow 0.45s var(--ease), border-color 0.45s var(--ease);
+    border-bottom: 1px solid transparent;
+  }
+  .site-header.is-solid {
+    background: rgba(250, 246, 238, 0.94);
+    backdrop-filter: saturate(1.4) blur(14px);
+    -webkit-backdrop-filter: saturate(1.4) blur(14px);
+    border-color: var(--line);
+  }
+  .site-header.is-solid :global(.wordmark) {
+    color: var(--forest-900);
+    --seal: var(--terracotta);
+    --accent: var(--terracotta);
+  }
+  .site-header__inner {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  .site-header__brand { text-decoration: none; flex: none; }
+  .site-header__brand :global(.wordmark) { font-size: 0.86rem; }
+  @media (max-width: 374px) {
+    .site-header__inner { gap: 0.5rem; }
+    .site-header__brand :global(.wordmark) { font-size: 0.78rem; }
+    .site-header__brand :global(.wordmark__desc) { display: none; }
+    .icon-btn { width: 42px; height: 42px; }
+  }
+  @media (min-width: 1024px) {
+    .site-header__brand :global(.wordmark) { font-size: 0.92rem; }
+  }
+
+  .site-nav { display: none; }
+  .site-nav ul { display: flex; gap: clamp(1.25rem, 2.2vw, 2.4rem); list-style: none; padding: 0; }
+  .site-nav a {
+    position: relative;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: rgba(250, 246, 238, 0.86);
+    padding-block: 0.4rem;
+    transition: color 0.3s var(--ease);
+  }
+  .site-nav a::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.45s var(--ease);
+  }
+  .site-nav a:hover::after, .site-nav a.is-active::after { transform: scaleX(1); transform-origin: left; }
+  .site-nav a:hover, .site-nav a.is-active { color: var(--ivory); }
+  .is-solid .site-nav a { color: var(--ink-muted); }
+  .is-solid .site-nav a:hover, .is-solid .site-nav a.is-active { color: var(--forest-900); }
+
+  .site-header__actions { display: flex; align-items: center; gap: 0.4rem; }
+  .header-cta { display: none; }
+  .icon-btn {
+    display: inline-grid;
+    place-items: center;
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    color: var(--ivory);
+    transition: background-color 0.3s var(--ease), color 0.3s var(--ease);
+    text-decoration: none;
+  }
+  .icon-btn:hover { background: rgba(250, 246, 238, 0.12); }
+  .is-solid .icon-btn { color: var(--forest-900); }
+  .is-solid .icon-btn:hover { background: rgba(15, 43, 29, 0.07); }
+  .icon-btn--wa { color: var(--gold-soft); }
+  .is-solid .icon-btn--wa { color: var(--terracotta); }
+  .icon-btn--light, .is-solid .icon-btn--light { color: var(--ivory); }
+
+  @media (min-width: 1024px) {
+    .site-nav { display: block; }
+    .header-cta { display: inline-flex; }
+    .icon-btn--wa, .menu-toggle { display: none; }
+  }
+
+  /* ---------- Drawer ---------- */
+  .drawer {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--cream);
+  }
+  .drawer::backdrop { background: rgba(10, 31, 21, 0.55); backdrop-filter: blur(3px); opacity: 0; transition: opacity 0.4s var(--ease); }
+  .drawer.is-open::backdrop { opacity: 1; }
+  .drawer__panel {
+    margin-left: auto;
+    width: min(100%, 440px);
+    height: 100%;
+    background: var(--forest-900);
+    display: flex;
+    flex-direction: column;
+    padding: 1rem var(--gutter) calc(1.5rem + env(safe-area-inset-bottom));
+    transform: translateX(100%);
+    transition: transform 0.55s var(--ease);
+    overflow-y: auto;
+  }
+  .drawer.is-open .drawer__panel { transform: none; }
+  .drawer__top { display: flex; align-items: center; justify-content: space-between; min-height: calc(var(--header-h) - 1rem); }
+  .drawer__top :global(.wordmark) { font-size: 0.86rem; }
+  .drawer__links { list-style: none; padding: 2.5rem 0 1rem; display: grid; gap: 0.25rem; }
+  .drawer__links li {
+    opacity: 0;
+    transform: translateX(24px);
+    transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
+    transition-delay: calc(0.12s + var(--i) * 0.05s);
+  }
+  .drawer.is-open .drawer__links li { opacity: 1; transform: none; }
+  .drawer__links a {
+    display: flex;
+    align-items: baseline;
+    gap: 1.1rem;
+    padding: 0.7rem 0;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 9vw, 2.6rem);
+    line-height: 1.1;
+    color: var(--ivory);
+    text-decoration: none;
+    border-bottom: 1px solid var(--line-light);
+  }
+  .drawer__links a:hover { color: var(--gold-soft); }
+  .drawer__num { font-family: var(--font-body); font-size: 0.75rem; letter-spacing: 0.15em; color: var(--gold); }
+  .drawer__foot { margin-top: auto; display: grid; gap: 1.25rem; padding-top: 1.5rem; }
+  .drawer__meta { font-size: 0.85rem; color: rgba(243, 236, 223, 0.65); line-height: 1.8; }
+  .drawer__meta a { color: var(--gold-soft); }
+</style>
+
+<script>
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  if (header?.classList.contains('is-overlay')) {
+    const onScroll = () => header.classList.toggle('is-solid', window.scrollY > 24);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  }
+
+  // Mobile drawer (native <dialog> provides focus trapping and Esc handling)
+  const drawer = document.querySelector<HTMLDialogElement>('[data-drawer]');
+  const openBtn = document.querySelector<HTMLButtonElement>('[data-drawer-open]');
+  if (drawer && openBtn) {
+    const open = () => {
+      drawer.showModal();
+      requestAnimationFrame(() => drawer.classList.add('is-open'));
+      document.documentElement.style.overflow = 'hidden';
+      openBtn.setAttribute('aria-expanded', 'true');
+    };
+    const close = () => {
+      drawer.classList.remove('is-open');
+      document.documentElement.style.overflow = '';
+      openBtn.setAttribute('aria-expanded', 'false');
+      const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      setTimeout(() => drawer.close(), reduced ? 0 : 450);
+    };
+    openBtn.addEventListener('click', open);
+    drawer.querySelector('[data-drawer-close]')?.addEventListener('click', close);
+    drawer.querySelectorAll('[data-drawer-link], [data-order-trigger]').forEach((a) => a.addEventListener('click', close));
+    drawer.addEventListener('cancel', (e) => { e.preventDefault(); close(); });
+    drawer.addEventListener('click', (e) => { if (e.target === drawer) close(); });
+  }
+
+  // Highlight the nav link for the section in view
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-nav-link]')];
+  const sections = links
+    .map((a) => document.getElementById(a.hash.slice(1)))
+    .filter((s): s is HTMLElement => !!s);
+  if (sections.length && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          links.forEach((a) => a.classList.toggle('is-active', a.hash === `#${e.target.id}`));
+        }
+      },
+      { rootMargin: '-45% 0px -50% 0px' },
+    );
+    sections.forEach((s) => io.observe(s));
+  }
+</script>

@@ -1,0 +1,72 @@
+---
+import { whatsappUrl } from '../lib/whatsapp';
+import Icon from './Icon.astro';
+---
+<a
+  href={whatsappUrl()}
+  class="wa-float"
+  data-order-trigger
+  data-wa-float
+  target="_blank"
+  rel="noopener"
+  aria-label="Order on WhatsApp"
+>
+  <span class="wa-float__icon"><Icon name="whatsapp" size={28} /></span>
+  <span class="wa-float__label">Order on WhatsApp</span>
+</a>
+
+<style>
+  .wa-float {
+    position: fixed;
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    z-index: 40;
+    display: inline-flex;
+    align-items: center;
+    height: 60px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--forest-800);
+    color: var(--ivory);
+    text-decoration: none;
+    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(224, 200, 143, 0.25) inset;
+    transition: transform 0.4s var(--ease), background-color 0.3s var(--ease), opacity 0.4s var(--ease);
+  }
+  .wa-float:hover { transform: translateY(-3px); background: var(--forest-700); }
+  .wa-float__icon {
+    display: grid;
+    place-items: center;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: #25d366;
+    color: #fff;
+    flex: none;
+  }
+  .wa-float__label {
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: max-width 0.5s var(--ease), padding 0.5s var(--ease);
+  }
+  @media (min-width: 768px) {
+    .wa-float__label { max-width: 200px; padding: 0 1.1rem 0 0.8rem; }
+  }
+  .wa-float.is-hidden { transform: translateY(140%); opacity: 0; pointer-events: none; }
+</style>
+
+<script>
+  // Step aside only while the closing call-to-action (which has its own
+  // WhatsApp button) is on screen, so the two never compete.
+  const btn = document.querySelector<HTMLElement>('[data-wa-float]');
+  const zones = document.querySelectorAll<HTMLElement>('[data-hide-wa-float]');
+  if (btn && zones.length && 'IntersectionObserver' in window) {
+    const visible = new Set<Element>();
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => (e.isIntersecting ? visible.add(e.target) : visible.delete(e.target)));
+      btn.classList.toggle('is-hidden', visible.size > 0);
+    }, { threshold: 0.5 });
+    zones.forEach((z) => io.observe(z));
+  }
+</script>
