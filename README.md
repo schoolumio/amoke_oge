@@ -83,4 +83,6 @@ Set `site.whatsapp.number` to the confirmed number in international format, digi
 
 ## Photography
 
-All photographs are **demonstration imagery** of Nigerian dishes from Wikimedia Commons (CC BY-SA, CC BY and CC0). They are **not** Amoke Oge's food or premises. Full credits are at `/photo-credits`. Replace them with Amoke Oge's own photography before launch: swap the files in `src/assets/images/`, update `src/data/photos.ts`, and set `credit: null` for in-house photos.
+All photographs are **demonstration imagery** of Nigerian dishes from Wikimedia Commons (CC BY-SA, CC BY and CC0). They are **not** Amoke Oge's food or premises. Full credits are at `/photo-credits`. Replace them with Amoke Oge's own photography before launch: swap the files in `src/assets/images/` (menu thumbnails live in `src/assets/images/menu/`), update `src/data/photos.ts`, and set `credit: null` for in-house photos. Then run `python3 scripts/placeholders.py` to regenerate the blurred loading previews (needs Pillow).
+
+Every image shows a tiny blurred preview of itself while the full image loads, so no image box is ever empty on slow connections.

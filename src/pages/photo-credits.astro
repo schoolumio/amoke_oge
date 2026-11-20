@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { photos } from '../data/photos';
+import { Image } from 'astro:assets';
+import { photos, placeholder } from '../data/photos';
 
 const list = Object.values(photos).filter((p) => p.credit);
 ---
@@ -17,8 +18,9 @@ const list = Object.values(photos).filter((p) => p.credit);
       <ul class="credits__list">
         {list.map((p) => (
           <li>
+            <Image src={p.src} alt={p.alt} widths={[80, 160]} sizes="80px" quality={60} class="credits__thumb" style={placeholder(p)} />
             <span class="credits__alt">{p.alt}</span>
-            <span>
+            <span class="credits__meta">
               Photo by {p.credit!.author} ·{' '}
               <a href={p.credit!.licenseUrl} target="_blank" rel="noopener license">{p.credit!.license}</a> ·{' '}
               <a href={p.credit!.source} target="_blank" rel="noopener">Source</a>
@@ -34,7 +36,20 @@ const list = Object.values(photos).filter((p) => p.credit);
 <style>
   .credits { max-width: 860px; }
   .credits__list { list-style: none; padding: 0; margin-top: 2.5rem; border-top: 1px solid var(--line); }
-  .credits__list li { display: grid; gap: 0.25rem; padding: 1rem 0; border-bottom: 1px solid var(--line); font-size: 0.9rem; color: var(--ink-muted); }
+  .credits__list li {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 0.25rem 1.1rem;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.9rem;
+    color: var(--ink-muted);
+  }
+  .credits__list :global(.credits__thumb) { grid-row: 1 / span 2; width: 80px; height: 80px; object-fit: cover; border-radius: var(--radius); }
+  .credits__alt, .credits__meta { grid-column: 2; }
+  .credits__alt { align-self: end; }
+  .credits__meta { align-self: start; }
   .credits__alt { color: var(--charcoal); font-weight: 600; }
   .credits__list a { color: var(--forest-800); }
   .credits__note { margin-top: 1.5rem; font-size: 0.85rem; color: var(--ink-muted); }

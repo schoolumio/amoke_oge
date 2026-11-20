@@ -1,6 +1,6 @@
 ---
 import { Picture } from 'astro:assets';
-import { photos } from '../data/photos';
+import { photos, placeholder } from '../data/photos';
 import { branches } from '../data/branches';
 import { whatsappUrl } from '../lib/whatsapp';
 import Icon from './Icon.astro';
@@ -18,7 +18,7 @@ const hero = photos.heroAmalaAbula;
       loading="eager"
       fetchpriority="high"
       quality={55}
-      style={`object-position:${hero.focus}`}
+      style={placeholder(hero)}
     />
     <div class="hero__badge" aria-hidden="true">
       <svg viewBox="0 0 120 120">

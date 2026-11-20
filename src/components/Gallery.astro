@@ -1,6 +1,7 @@
 ---
 import { Image, getImage } from 'astro:assets';
 import { gallery } from '../data/dishes';
+import { placeholder } from '../data/photos';
 import { site } from '../config/site';
 import Icon from './Icon.astro';
 
@@ -50,7 +51,7 @@ const instagram = site.socials.find((s) => s.label === 'Instagram');
               widths={[320, 480, 720, 960]}
               sizes={item.size === 'large' || item.size === 'wide' ? '(min-width: 900px) 50vw, 100vw' : '(min-width: 900px) 25vw, 50vw'}
               quality={66}
-              style={item.photo.focus ? `object-position:${item.photo.focus}` : undefined}
+              style={placeholder(item.photo)}
             />
             <span class="gallery__cap">{item.caption}</span>
           </button>

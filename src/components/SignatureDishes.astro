@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import { signatureDishes } from '../data/dishes';
+import { placeholder } from '../data/photos';
 import { whatsappUrl, dishMessage } from '../lib/whatsapp';
 import Icon from './Icon.astro';
 ---
@@ -33,7 +34,7 @@ import Icon from './Icon.astro';
               widths={[360, 520, 720, 900]}
               sizes="(min-width: 1024px) 30vw, (min-width: 640px) 46vw, 82vw"
               quality={70}
-              style={dish.photo.focus ? `object-position:${dish.photo.focus}` : undefined}
+              style={placeholder(dish.photo)}
             />
             <span class="dish__num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
           </figure>

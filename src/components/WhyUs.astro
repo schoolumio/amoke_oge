@@ -1,6 +1,6 @@
 ---
 import { Image } from 'astro:assets';
-import { photos } from '../data/photos';
+import { photos, placeholder } from '../data/photos';
 import { branches } from '../data/branches';
 import Icon from './Icon.astro';
 
@@ -47,6 +47,7 @@ const img = photos.takeawayPacks;
           widths={[400, 640, 900]}
           sizes="(min-width: 1024px) 34vw, 92vw"
           quality={68}
+          style={placeholder(img)}
         />
       </figure>
     </div>
@@ -73,7 +74,7 @@ const img = photos.takeawayPacks;
   }
   .why__head .h2 { margin-top: 1.25rem; }
   .why__media { margin-top: 2.5rem; aspect-ratio: 4 / 3; border-radius: var(--radius); }
-  @media (max-width: 1023px) { .why__media { display: none; } }
+  @media (max-width: 1023px) { .why__media { aspect-ratio: 16 / 10; } }
   .why__list { list-style: none; padding: 0; }
   .why__item {
     display: grid;

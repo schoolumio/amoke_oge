@@ -1,23 +1,34 @@
 ---
+import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { photos, placeholder } from '../data/photos';
+const img = photos.abulaPonmo;
 ---
 <BaseLayout title="Page not found | Amoke Oge" description="The page you were looking for could not be found.">
-  <section class="section nf adire-bg">
-    <div class="container nf__inner">
-      <p class="eyebrow">404</p>
-      <h1 class="display">This plate is <em class="accent">empty.</em></h1>
-      <p class="lede">The page you were looking for has moved or no longer exists. Let’s get you back to the good food.</p>
-      <div class="nf__actions">
-        <a href="/" class="btn btn--primary">Back to home</a>
-        <a href="/#menu" class="btn btn--outline">See the menu</a>
+  <section class="section nf">
+    <div class="container nf__grid">
+      <div class="nf__text">
+        <p class="eyebrow">404 · Page not found</p>
+        <h1 class="display">This plate is <em class="accent">empty.</em></h1>
+        <p class="lede">The page you were looking for has moved or no longer exists. Let’s get you back to the good food.</p>
+        <div class="nf__actions">
+          <a href="/" class="btn btn--primary">Back to home</a>
+          <a href="/#menu" class="btn btn--outline">See the menu</a>
+        </div>
       </div>
+      <figure class="nf__media media">
+        <Image src={img.src} alt={img.alt} widths={[480, 720, 960]} sizes="(min-width: 900px) 40vw, 92vw" quality={66} loading="eager" style={placeholder(img)} />
+      </figure>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .nf { min-height: 70vh; display: grid; align-items: center; text-align: center; }
-  .nf::before { opacity: 0.12; filter: invert(0.6); }
-  .nf__inner { display: grid; gap: 1.5rem; justify-items: center; }
-  .nf__actions { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; margin-top: 1rem; }
+  .nf { min-height: 70vh; display: grid; align-items: center; }
+  .nf__grid { display: grid; gap: 3rem; align-items: center; }
+  @media (min-width: 900px) { .nf__grid { grid-template-columns: 1.1fr 1fr; gap: 5rem; } }
+  .nf__text { display: grid; gap: 1.5rem; justify-items: start; }
+  .nf__actions { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; }
+  .nf__media { aspect-ratio: 4 / 5; border-radius: var(--radius); box-shadow: var(--shadow-md); }
+  @media (max-width: 899px) { .nf__media { aspect-ratio: 16 / 10; } }
 </style>

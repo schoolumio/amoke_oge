@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import { menu } from '../data/menu';
-import { photos, type Photo } from '../data/photos';
+import { photos, placeholder, type Photo } from '../data/photos';
 import { whatsappUrl, dishMessage } from '../lib/whatsapp';
 import Icon from './Icon.astro';
 
@@ -68,7 +68,7 @@ const priceAsk = whatsappUrl(
                   widths={[400, 640, 900]}
                   sizes="(min-width: 1024px) 34vw, 92vw"
                   quality={68}
-                  style={photo.focus ? `object-position:${photo.focus}` : undefined}
+                  style={placeholder(photo)}
                 />
               </figure>
               <div class="menu__visual-caption on-dark">
@@ -80,6 +80,16 @@ const priceAsk = whatsappUrl(
             <ul class="menu__list">
               {cat.items.map((item) => (
                 <li class="menu-item">
+                  <figure class="menu-item__thumb">
+                    <Image
+                      src={item.photo.src}
+                      alt={item.photo.alt}
+                      widths={[96, 168, 224]}
+                      sizes="(min-width: 640px) 84px, 68px"
+                      quality={65}
+                      style={placeholder(item.photo)}
+                    />
+                  </figure>
                   <div class="menu-item__text">
                     <h4 class="menu-item__name">
                       {item.name}
@@ -205,12 +215,40 @@ const priceAsk = whatsappUrl(
 
   .menu__list { list-style: none; padding: 0; }
   .menu-item {
-    display: flex;
-    gap: 1.25rem;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: 'thumb text side';
+    gap: 0.4rem 1.1rem;
     align-items: center;
-    padding: 1.15rem 0;
+    padding: 1rem 0;
     border-bottom: 1px solid var(--line);
+  }
+  .menu-item__thumb {
+    grid-area: thumb;
+    width: 84px;
+    height: 84px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--sand);
+    box-shadow: var(--shadow-sm);
+  }
+  .menu-item__thumb :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s var(--ease);
+  }
+  .menu-item:hover .menu-item__thumb :global(img) { transform: scale(1.08); }
+  .menu-item__text { grid-area: text; min-width: 0; }
+  .menu-item__side { grid-area: side; }
+  @media (max-width: 559px) {
+    .menu-item {
+      grid-template-columns: auto minmax(0, 1fr);
+      grid-template-areas: 'thumb text' 'thumb side';
+      align-items: start;
+    }
+    .menu-item__thumb { width: 72px; height: 72px; grid-row: 1 / span 2; }
+    .menu-item__side { justify-self: start; margin-top: 0.35rem; }
   }
   .menu-item:first-child { padding-top: 0.25rem; }
   .menu-item__name {
@@ -234,7 +272,7 @@ const priceAsk = whatsappUrl(
     padding: 0.15rem 0.55rem;
   }
   .menu-item__desc { margin-top: 0.3rem; color: var(--ink-muted); font-size: 0.92rem; line-height: 1.55; }
-  .menu-item__side { display: flex; align-items: center; gap: 1rem; flex: none; }
+  .menu-item__side { display: flex; align-items: center; gap: 1rem; }
   .menu-item__price { font-family: var(--font-display); font-size: 1.1rem; color: var(--forest-800); }
   .menu-item__order {
     display: inline-flex;
